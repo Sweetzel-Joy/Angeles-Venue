@@ -1,0 +1,237 @@
+'use client';
+
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { LinkButton } from './Button';
+import { drawerSlide } from '@/lib/animations';
+import { NAV_LINKS, VENUE } from '@/lib/content';
+import { cn } from '@/lib/utils';
+
+/** Scroll distance, in px, before the bar switches to its solid state. */
+const SOLID_AFTER = 80;
+
+/**
+ * Sticky navigation.
+ *
+ * Transparent over the hero, solid past `SOLID_AFTER`. The scroll state is read
+ * through `useMotionValueEvent` rather than a React `onScroll` handler, so the
+ * common case — scrolling without crossing the threshold — does no React work
+ * at all. Only the crossing itself triggers a render.
+ */
+export function Navbar() {
+  const [isSolid, setIsSolid] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { scrollY } = useScroll();
+
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    const shouldBeSolid = latest > SOLID_AFTER;
+    // Guarded so we only re-render on an actual state change.
+    setIsSolid((current) => (current === shouldBeSolid ? current : shouldBeSolid));
+  });
+
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
+
+  /* Drawer: escape to close, focus trap, focus restoration ----------------- */
+  useEffect(() => {
+    if (!isDrawerOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDrawer();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+
+      const focusables = drawerRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled])',
+      );
+      if (!focusables || focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (!first || !last) return;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+
+    // Captured now rather than read in the cleanup. The toggle button is not
+    // conditionally rendered so the two are equivalent here, but reading a ref
+    // during cleanup is the pattern that breaks the moment the node becomes
+    // conditional — and it is what react-hooks/exhaustive-deps warns about.
+    const toggleButton = toggleRef.current;
+
+    // Move focus into the drawer, and lock the page behind it.
+    const raf = requestAnimationFrame(() => {
+      drawerRef.current?.querySelector<HTMLElement>('a[href]')?.focus();
+    });
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      cancelAnimationFrame(raf);
+      document.body.style.overflow = previousOverflow;
+      // Hand focus back to the button that opened it, so keyboard users are not
+      // dropped at the top of the document.
+      toggleButton?.focus();
+    };
+  }, [isDrawerOpen, closeDrawer]);
+
+  return (
+    <>
+      <motion.header
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        className={cn(
+          'fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter,box-shadow] duration-500',
+          isSolid
+            ? 'border-b border-ink/10 bg-ivory-50/85 shadow-soft backdrop-blur-lg'
+            : 'border-b border-transparent bg-transparent',
+        )}
+      >
+        <nav
+          aria-label="Primary"
+          className="container-page flex h-[4.5rem] items-center justify-between gap-6"
+        >
+          <a
+            href="#hero"
+            className="font-display text-xl font-medium tracking-tight text-ink transition-colors hover:text-clay-600"
+          >
+            {VENUE.name}
+          </a>
+
+          <ul className="hidden items-center gap-8 md:flex">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="group relative py-1 text-sm text-ink-muted transition-colors duration-200 hover:text-ink"
+                >
+                  {link.label}
+                  {/* Underline grows from the left on hover/focus. A scaled
+                      pseudo-element, so no layout is touched. */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-clay-500 transition-transform duration-300 ease-out group-hover:scale-x-100 group-focus-visible:scale-x-100 motion-reduce:transition-none"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+
+          <div className="flex items-center gap-3">
+            <LinkButton href="#booking" size="sm" className="hidden sm:inline-flex">
+              Book Your Event
+            </LinkButton>
+
+            <button
+              ref={toggleRef}
+              type="button"
+              onClick={() => setIsDrawerOpen((open) => !open)}
+              aria-expanded={isDrawerOpen}
+              aria-controls="mobile-nav"
+              aria-label={isDrawerOpen ? 'Close menu' : 'Open menu'}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink transition-colors hover:border-ink/35 md:hidden"
+            >
+              <MenuIcon open={isDrawerOpen} />
+            </button>
+          </div>
+        </nav>
+      </motion.header>
+
+      <AnimatePresence>
+        {isDrawerOpen && (
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close menu"
+              tabIndex={-1}
+              onClick={closeDrawer}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-ink/35 backdrop-blur-sm md:hidden"
+            />
+
+            <motion.div
+              ref={drawerRef}
+              id="mobile-nav"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Site menu"
+              variants={drawerSlide}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-y-0 right-0 z-[70] flex w-[min(20rem,85vw)] flex-col gap-2 border-l border-ink/10 bg-ivory-50 px-7 py-8 shadow-lift md:hidden"
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <span className="font-display text-lg text-ink">Menu</span>
+                <button
+                  type="button"
+                  onClick={closeDrawer}
+                  aria-label="Close menu"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink"
+                >
+                  <MenuIcon open />
+                </button>
+              </div>
+
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={closeDrawer}
+                  className="border-b border-ink/8 py-4 font-display text-2xl text-ink transition-colors hover:text-clay-600"
+                >
+                  {link.label}
+                </a>
+              ))}
+
+              <LinkButton href="#booking" onClick={closeDrawer} className="mt-6 w-full">
+                Book Your Event
+              </LinkButton>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+/** Hamburger that morphs into a close icon. Pure transform, no layout. */
+function MenuIcon({ open }: { open: boolean }) {
+  const barBase =
+    'absolute h-px w-5 bg-current transition-transform duration-300 ease-out motion-reduce:transition-none';
+
+  return (
+    <span aria-hidden="true" className="relative flex h-5 w-5 items-center justify-center">
+      <span
+        className={cn(barBase, open ? 'rotate-45' : '-translate-y-1.5')}
+      />
+      <span
+        className={cn(
+          'absolute h-px w-5 bg-current transition-opacity duration-200',
+          open && 'opacity-0',
+        )}
+      />
+      <span
+        className={cn(barBase, open ? '-rotate-45' : 'translate-y-1.5')}
+      />
+    </span>
+  );
+}

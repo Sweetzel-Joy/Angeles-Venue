@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Mirrors of the Tailwind theme, for the few places that need raw CSS
+       (canvas fallback gradients, scrollbar, selection). */
+    --ivory-50: #fdfbf7;
+    --ivory-100: #f7f1e8;
+    --ivory-200: #efe5d6;
+    --clay-500: #c0653f;
+    --sage-400: #9aae8a;
+    --ink: #2b2721;
+  }
+
+  html {
+    /* Lenis drives scrolling; native smooth-scroll would fight it. When Lenis
+       is not mounted (reduced motion) the browser default applies, which is
+       correct — instant, no interpolation. */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+
+    /* Framer Motion measures `useScroll({ target })` offsets against the scroll
+       container — here the root element — and warns if it is `position: static`
+       because relative measurements get unreliable. Safe to set: every absolute
+       element in the page already has its own positioned ancestor, and `fixed`
+       elements are unaffected. */
+    position: relative;
+  }
+
+  /* Lenis sets .lenis-smooth on <html> only while it is actually running. */
+  html.lenis-smooth {
+    scroll-behavior: auto;
+  }
+
+  body {
+    @apply bg-ivory-50 font-sans text-ink antialiased;
+    /* Sections are full-bleed; a stray horizontal scrollbar from a translated
+       decorative element is the most common regression on pages like this. */
+    overflow-x: hidden;
+  }
+
+  /*
+    Scroll-reveal variants (`slideInLeft`/`slideInRight`) hold elements at a
+    ±48px horizontal offset until they animate in. Every not-yet-revealed
+    element below the fold therefore sticks out past the viewport and widens the
+    document, producing a horizontal scrollbar on narrow screens.
+
+    `overflow-x: clip` rather than `hidden`: `hidden` would make each section a
+    scroll container, which silently breaks `position: sticky` descendants and
+    interferes with scroll anchoring. `clip` just clips. Applied to every
+    section so a future one cannot reintroduce the problem.
+  */
+  section {
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background-color: var(--clay-500);
+    color: var(--ivory-50);
+  }
+
+  /* Visible focus ring everywhere, on keyboard focus only. Never remove this —
+     it is the whole of keyboard navigability. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-clay-500 ring-offset-2 ring-offset-ivory-50;
+    border-radius: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@layer components {
+  /* Standard page gutter + max width. Used by every section. */
+  .container-page {
+    @apply mx-auto w-full max-w-content px-6 sm:px-8 lg:px-12;
+  }
+
+  .eyebrow {
+    @apply font-sans text-xs font-medium uppercase tracking-eyebrow text-clay-600;
+  }
+
+  /* Fallback painted behind every Canvas: approximates the scene's average
+     colour so the swap-in is a settle, not a flash. */
+  .scene-fallback {
+    background:
+      radial-gradient(
+        60% 50% at 50% 30%,
+        rgba(224, 169, 139, 0.35) 0%,
+        rgba(224, 169, 139, 0) 70%
+      ),
+      radial-gradient(
+        50% 60% at 75% 70%,
+        rgba(154, 174, 138, 0.28) 0%,
+        rgba(154, 174, 138, 0) 70%
+      ),
+      linear-gradient(180deg, var(--ivory-50) 0%, var(--ivory-100) 100%);
+  }
+}
+
+@layer utilities {
+  /* Applied to elements that are about to be transform-animated. Kept as an
+     explicit utility rather than a blanket rule — `will-change` on everything
+     forces needless compositor layers and costs more than it saves. */
+  .will-animate {
+    will-change: transform, opacity;
+  }
+
+}
+
+/*
+ * Global reduced-motion backstop.
+ *
+ * Framer Motion variants and the 3D scenes each handle this themselves; this
+ * block catches the rest — CSS keyframe animations, transitions, and anything
+ * added later that forgets to check. Belt and braces, deliberately.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
