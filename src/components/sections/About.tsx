@@ -80,14 +80,24 @@ export function About() {
         <Reveal variants={slideInRight} amount={0.15}>
           <motion.div style={{ y: imageY }} className="will-animate">
             <TiltCard maxTilt={8} lift={16} className="rounded-3xl">
-              <figure className="relative overflow-hidden rounded-3xl bg-ivory-200 shadow-lift">
+              {/*
+                The frame sets the crop, not the file. The source photograph is
+                a 2.28:1 panorama; shown at its own ratio it would be a thin
+                strip beside the tall text column, and cropped to the previous
+                portrait frame it lost about 80% of its width — including the
+                balloon arch and the garden. A 4:3 frame keeps the middle ~58%,
+                which is where the composition actually lives.
+
+                `aspect-[4/3]` + `fill` + `object-cover` mirrors the pattern in
+                EventTypes.tsx rather than introducing a second way to crop.
+              */}
+              <figure className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-ivory-200 shadow-lift">
                 <Image
                   src={ABOUT.image.src}
                   alt={ABOUT.image.alt}
-                  width={ABOUT.image.width}
-                  height={ABOUT.image.height}
+                  fill
                   sizes="(max-width: 1024px) 92vw, 45vw"
-                  className="h-full w-full object-cover"
+                  className="object-cover"
                 />
                 {/* Warm gradient so the ivory page and the photo meet softly
                     rather than at a hard rectangular edge. */}

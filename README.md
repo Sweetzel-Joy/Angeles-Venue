@@ -51,7 +51,8 @@ Everything the page renders comes from one file:
 **[`src/lib/content.ts`](src/lib/content.ts)**. Search it for `TODO:`.
 
 **Identity**
-- [ ] `VENUE.name`, `VENUE.tagline`, `VENUE.intro`
+- [x] `VENUE.name` — set to "Angeles Venue"
+- [ ] `VENUE.tagline`, `VENUE.intro`
 - [ ] `VENUE.address` (all five fields)
 - [ ] `VENUE.phone`, `VENUE.email`
 - [ ] `VENUE.siteUrl` — must be the real deployed URL, or Open Graph images and
@@ -77,7 +78,18 @@ Everything the page renders comes from one file:
       production unnoticed.
 
 **Photography**
-- [ ] Replace all 13 Unsplash placeholders with real venue photography.
+- [x] About section — `public/images/about-pavilion.jpg`
+- [x] Gallery — 4 real photos in `public/images/gallery-*.jpg`
+- [ ] Replace the remaining **4** Unsplash placeholders on the event-type cards
+      (weddings, corporate, concerts, private parties) with real venue
+      photography.
+
+> Two things to keep in step if you add gallery images:
+> `width`/`height` in `content.ts` must be the file's real pixel dimensions
+> (they drive the masonry column balancing), and the `sizes` attribute in
+> `Gallery.tsx` must match the column count in `useMasonryColumns.ts` — the
+> gallery is **two columns** above 640px, chosen because the photos are
+> panoramic and three columns rendered them as unreadable strips.
 
   When you swap an image, update **two** other things with it:
 

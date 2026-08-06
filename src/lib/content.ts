@@ -4,7 +4,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * Every `TODO:` below marks a value that is a placeholder. They are deliberately
- * obvious ("Your Venue Name", `value: 0`) rather than plausible-looking invented
+ * obvious ("Client name", `value: 0`) rather than plausible-looking invented
  * numbers — a fake-but-realistic capacity figure is exactly the kind of thing
  * that survives to production unnoticed.
  *
@@ -26,13 +26,12 @@ import type {
 /* -------------------------------------------------------------------------- */
 
 export const VENUE: VenueDetails = {
-  // TODO: Replace with the venue's real trading name.
-  name: 'Your Venue Name',
+  name: 'Angeles Venue',
   // TODO: Replace with the venue's tagline (3–6 words reads best in the hero).
   tagline: 'Where occasions become memory',
   // TODO: Replace with one or two sentences describing the venue.
   intro:
-    'A short description of the venue goes here — what it is, who it serves, and what makes an event held here different from one held anywhere else.',
+    'Your budget-friendly event place is right around the corner.',
   address: {
     // TODO: Replace all address fields with the real address.
     street: '123 Placeholder Street',
@@ -77,10 +76,10 @@ export const NAV_LINKS: readonly NavLink[] = [
 export const ABOUT = {
   eyebrow: 'The Place',
   // TODO: Replace with a real headline for the about section.
-  heading: 'A room that does half the work for you',
+  heading: 'One Venue, Every Occasion',
   // TODO: Replace both paragraphs with real copy about the venue.
   body: [
-    'Describe the space here: its history, its architecture, the light, the scale. Two paragraphs is the sweet spot — enough to set a mood, short enough that people actually read it.',
+    'Angeles venue offers a place for your special occassions. It can accommodate 100pax.',
     'Use the second paragraph for what the space means in practice: how it adapts between event types, what the team handles for you, and why planners come back.',
   ],
   stats: [
@@ -89,11 +88,15 @@ export const ABOUT = {
     { label: 'Years operating', value: 'TODO' },
   ],
   image: {
-    // TODO: Replace with a real photograph of the venue interior.
-    src: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&h=1500&q=80',
-    alt: 'Placeholder: a grand ballroom set with round banquet tables and gold chairs beneath ornate chandeliers.',
-    width: 1200,
-    height: 1500,
+    // Real venue photography. Served from /public, so it needs no
+    // `remotePatterns` entry in next.config.mjs — that is only for remote hosts.
+    src: '/images/about-pavilion.jpg',
+    alt: 'The covered pavilion set for a party: round tables dressed in white linen and chair covers, a green-and-gold balloon arch beside the stone bar, and the garden visible through the open side.',
+    // True dimensions of the file. It is a 2.28:1 panorama, and the About
+    // frame crops it to 4:3 in CSS — see the `aspect-[4/3]` figure in
+    // components/sections/About.tsx.
+    width: 3089,
+    height: 1356,
   },
 } as const;
 
@@ -228,102 +231,61 @@ export const AMENITIES: readonly Amenity[] = [
 /* -------------------------------------------------------------------------- */
 
 /**
- * TODO: Replace every image below with real venue photography.
+ * Real venue photography, served from /public.
  *
- * Two things to preserve when you swap them:
+ * Two things to preserve if you add or swap images:
  *
- *  1. `width`/`height` must match what the URL actually returns. They reserve
- *     the space before the image arrives, so wrong values cause layout shift
- *     and throw off the masonry column balancing (which reads the ratio).
- *     The Unsplash URLs below pin both `w` and `h`, so the returned file is
- *     exactly these dimensions — no guessing.
- *  2. `alt` must describe the image that is actually there. The alt text below
- *     was written against these specific photographs; if you change the `src`
- *     and leave the `alt`, screen-reader users are told about a picture that
+ *  1. `width`/`height` must be the file's true pixel dimensions. They reserve
+ *     layout space before the image arrives, and `useMasonryColumns` reads the
+ *     ratio to balance the columns — a wrong value produces a visibly lopsided
+ *     grid, not just a little shift.
+ *  2. `alt` must describe the image that is actually there. Change a `src` and
+ *     leave its `alt`, and screen-reader users are told about a photograph that
  *     is not on the page.
  *
- * The mix of landscape and portrait ratios is deliberate — a masonry grid
- * where every tile is 3:2 just looks like a plain grid.
+ * `caption` and `alt` are deliberately different: the caption is a short label
+ * shown on hover, the alt is the full description for someone who cannot see
+ * the photo.
  */
 export const GALLERY: readonly GalleryItem[] = [
   {
     id: 'g1',
-    caption: 'The main hall, set for a banquet',
+    caption: 'Set for a birthday, looking out to the garden',
     image: {
-      src: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1000&h=700&q=80',
-      alt: 'Placeholder: long banquet tables under a white marquee, set with linen, glassware and floral centrepieces.',
-      width: 1000,
-      height: 700,
+      src: '/images/gallery-pastel-aisle.jpg',
+      alt: 'Round tables in white damask linen and chair covers line both sides of an aisle running out to the garden, with pastel balloons strung across the roof and a turquoise shade sail beyond.',
+      width: 1968,
+      height: 864,
     },
   },
   {
     id: 'g2',
-    caption: 'The garden ceremony arch',
+    caption: 'The dessert corner',
     image: {
-      src: 'https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=1000&h=1400&q=80',
-      alt: 'Placeholder: a white columned pavilion dressed with hanging flower arrangements, set up for an outdoor ceremony.',
-      width: 1000,
-      height: 1400,
+      src: '/images/gallery-pastel-dessert-corner.jpg',
+      alt: 'A dessert table signed "Sweets Corner" against a stone wall, framed by a pink, blue and yellow balloon arch, with set tables in the foreground.',
+      width: 3089,
+      height: 1356,
     },
   },
   {
     id: 'g3',
-    caption: 'Table styling detail',
+    caption: 'A 60th, with the buffet laid out',
     image: {
-      src: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1000&h=1250&q=80',
-      alt: 'Placeholder: a long dining table dressed in white, with small floral arrangements and glassware at each setting.',
-      width: 1000,
-      height: 1250,
+      src: '/images/gallery-sixtieth-buffet.jpg',
+      alt: 'The pavilion under white draped ceiling fabric, chafing dishes laid along the buffet counter and a green-and-gold balloon arch over a silver sequin backdrop.',
+      width: 3089,
+      height: 1356,
     },
   },
   {
     id: 'g4',
-    caption: 'The stage, rigged for live sound',
+    caption: 'A christening, styled in peach and blue',
     image: {
-      src: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1000&h=700&q=80',
-      alt: 'Placeholder: a performer with one arm raised on a stage filled with smoke and red light.',
-      width: 1000,
-      height: 700,
-    },
-  },
-  {
-    id: 'g5',
-    caption: 'Reception in full swing',
-    image: {
-      src: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=1000&h=1200&q=80',
-      alt: 'Placeholder: a crowded evening party with guests talking beneath strings of warm overhead lights.',
-      width: 1000,
-      height: 1200,
-    },
-  },
-  {
-    id: 'g6',
-    caption: 'The hall, set for a conference',
-    image: {
-      src: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1000&h=700&q=80',
-      alt: 'Placeholder: a wide conference hall with round tables and three large projection screens above the stage.',
-      width: 1000,
-      height: 700,
-    },
-  },
-  {
-    id: 'g7',
-    caption: 'Wedding signage in the garden',
-    image: {
-      src: 'https://images.unsplash.com/photo-1507504031003-b417219a0fde?auto=format&fit=crop&w=1000&h=1300&q=80',
-      alt: 'Placeholder: a wooden sign reading "Mr and Mrs" in white script, hanging among green leaves.',
-      width: 1000,
-      height: 1300,
-    },
-  },
-  {
-    id: 'g8',
-    caption: 'The buffet, plated and ready',
-    image: {
-      src: 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1000&h=750&q=80',
-      alt: 'Placeholder: a catering buffet of hot dishes and salads in silver trays, garnished with white flowers.',
-      width: 1000,
-      height: 750,
+      src: '/images/gallery-hot-air-balloon.jpg',
+      alt: 'A hot-air-balloon themed backdrop in peach and cream at the end of a red carpet aisle, with tables dressed in white and navy chair sashes on either side.',
+      width: 2048,
+      height: 1536,
     },
   },
 ] as const;

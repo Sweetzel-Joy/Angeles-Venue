@@ -17,17 +17,24 @@ import type { GalleryItem } from '@/types';
  * Explicit flex columns have none of those problems: each column is an ordinary
  * block box, so observers, hit-testing and lazy loading all behave normally.
  *
- * Column count resolves to 3 on the server and on the first client render, then
- * corrects in an effect. That ordering is deliberate — computing it during
- * render would produce a hydration mismatch.
+ * Column count resolves to the desktop value on the server and on the first
+ * client render, then corrects in an effect. That ordering is deliberate —
+ * computing it during render would produce a hydration mismatch.
  */
 export function useMasonryColumns(
   items: readonly GalleryItem[],
 ): GalleryItem[][] {
   const isSmall = useMediaQuery('(max-width: 639px)');
-  const isMedium = useMediaQuery('(max-width: 1023px)');
 
-  const columnCount = isSmall ? 1 : isMedium ? 2 : 3;
+  // Two columns above the small breakpoint, not three.
+  //
+  // The gallery photographs are panoramic — most are around 2.28:1. Split three
+  // ways on a desktop viewport, each column is ~380px wide, so a panorama
+  // renders barely 170px tall: a row of stunted strips you cannot actually see
+  // anything in. Two columns give each image ~650px, which is enough for the
+  // room to read. Worth revisiting if the gallery ever fills up with portrait
+  // shots, where three columns would suit better.
+  const columnCount = isSmall ? 1 : 2;
 
   return useMemo(() => {
     const columns: GalleryItem[][] = Array.from(

@@ -131,7 +131,11 @@ function GalleryTile({
               alt=""
               width={item.image.width}
               height={item.image.height}
-              sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 31vw"
+              // Must track the column count in `useMasonryColumns`: one column
+              // below 640px, two above. Leave this describing more columns than
+              // there are and the browser picks a candidate too small for the
+              // tile, so the photo renders visibly soft.
+              sizes="(max-width: 640px) 92vw, 46vw"
               className="h-auto w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
           </motion.span>
