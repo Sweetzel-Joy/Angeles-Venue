@@ -63,7 +63,7 @@ export const VENUE: VenueDetails = {
 
 export const NAV_LINKS: readonly NavLink[] = [
   { label: 'About', href: '#about' },
-  { label: 'Events', href: '#events' },
+  { label: 'Services', href: '#services' },
   { label: 'Gallery', href: '#gallery' },
   { label: 'Venue', href: '#venue' },
   { label: 'Stories', href: '#stories' },
@@ -84,8 +84,8 @@ export const ABOUT = {
   ],
   stats: [
     // TODO: Replace with two real headline figures.
-    { label: 'Events hosted', value: 'TODO' },
-    { label: 'Years operating', value: 'TODO' },
+    { label: 'Events hosted', value: '20+' },
+    { label: 'Years operating', value: '5' },
   ],
   image: {
     // Real venue photography. Served from /public, so it needs no

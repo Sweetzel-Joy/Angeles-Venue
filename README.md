@@ -19,6 +19,7 @@ npm run dev      # http://localhost:3000
 
 ---
 
+<<<<<<< HEAD
 ## ⚠️ Before this goes live
 
 Three things will silently do the wrong thing until you deal with them.
@@ -218,3 +219,5 @@ Checked in a real browser (Chromium, 1440×950 and 390×844):
 
 Not measured: Lighthouse scores (misleading against `next dev`) and real-device
 GPU performance.
+=======
+>>>>>>> eb8c254fdfe90fe11ff6e367bf334a192add98fc

@@ -214,24 +214,87 @@ export const lightboxPanel: Variants = {
 /* -------------------------------------------------------------------------- */
 
 /**
- * The single variant set used when `prefers-reduced-motion: reduce` is on.
+ * Resting value for each property a variant set might animate.
  *
- * That setting asks us to remove *movement*, not feedback — so opacity stays
- * (it still signals that something arrived) while every translation, scale and
- * clip animation is dropped, since those are what trigger vestibular
- * discomfort. Swapping the whole variant object is more reliable than trying to
- * strip keys out of each one.
+ * These are the values that mean "not moved / not clipped". `motionSafe` uses
+ * them to build a reduced set that explicitly returns each property to rest.
  */
-export const reducedMotionVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2 } },
-  exit: { opacity: 0, transition: { duration: 0.2 } },
-};
+const RESTING_VALUES = {
+  x: 0,
+  y: 0,
+  scale: 1,
+  rotate: 0,
+  clipPath: 'inset(0% 0% 0% 0%)',
+} as const;
 
-/** Picks between a variant set and its reduced-motion equivalent. */
+type AnimatableKey = keyof typeof RESTING_VALUES;
+
+function isAnimatableKey(key: string): key is AnimatableKey {
+  return key in RESTING_VALUES;
+}
+
+/**
+ * Collects every property the given variant set animates.
+ *
+ * Variant values may be plain objects *or* functions (the carousel resolves its
+ * offsets from a `custom` direction prop), so function variants are skipped —
+ * their targets cannot be known without invoking them.
+ */
+function animatedKeys(variants: Variants): Set<AnimatableKey> {
+  const keys = new Set<AnimatableKey>();
+
+  for (const variant of Object.values(variants)) {
+    if (!variant || typeof variant !== 'object') continue;
+    for (const key of Object.keys(variant)) {
+      if (isAnimatableKey(key)) keys.add(key);
+    }
+  }
+
+  return keys;
+}
+
+/**
+ * Swaps a variant set for a movement-free equivalent when the visitor has asked
+ * to reduce motion. Opacity is kept — that setting asks us to remove *movement*,
+ * not feedback — while translation, scale and clip are returned to rest.
+ *
+ * The subtle part is *why* the reduced set has to name the properties the
+ * original animated, rather than just being `{ opacity }`.
+ *
+ * `usePrefersReducedMotion` returns `false` during SSR and the first client
+ * render, then corrects in an effect — deliberately, to avoid a hydration
+ * mismatch. So an element mounts with the full variants, applies `initial`
+ * ("hidden": say `y: '0.6em'` or `clipPath: 'inset(100%)'`), and only then does
+ * the flag flip. If the replacement set does not mention `y` or `clipPath`,
+ * Framer has nothing to animate those properties toward and simply leaves them
+ * where they were — stranding the element off-screen or clipped to nothing,
+ * permanently and only for reduced-motion users.
+ *
+ * That bug shipped twice: an invisible hero headline and an entirely blank
+ * gallery. Hence resetting exactly the keys the source set touches.
+ */
 export function motionSafe(
   variants: Variants,
   prefersReducedMotion: boolean,
 ): Variants {
-  return prefersReducedMotion ? reducedMotionVariants : variants;
+  if (!prefersReducedMotion) return variants;
+
+  const keys = animatedKeys(variants);
+
+  // Spread per key rather than building a record: it keeps each value at its
+  // exact type (`clipPath` must stay a string for Framer), and avoids iterating
+  // a Set, which this tsconfig's target does not allow.
+  const resting = {
+    ...(keys.has('x') ? { x: RESTING_VALUES.x } : {}),
+    ...(keys.has('y') ? { y: RESTING_VALUES.y } : {}),
+    ...(keys.has('scale') ? { scale: RESTING_VALUES.scale } : {}),
+    ...(keys.has('rotate') ? { rotate: RESTING_VALUES.rotate } : {}),
+    ...(keys.has('clipPath') ? { clipPath: RESTING_VALUES.clipPath } : {}),
+  };
+
+  return {
+    hidden: { ...resting, opacity: 0 },
+    visible: { ...resting, opacity: 1, transition: { duration: 0.2 } },
+    exit: { ...resting, opacity: 0, transition: { duration: 0.2 } },
+  };
 }

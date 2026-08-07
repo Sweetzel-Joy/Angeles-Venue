@@ -1,25 +1,26 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
+import Image from 'next/image';
 import { useRef } from 'react';
-import { LazyHeroScene } from '@/components/3d/LazyHeroScene';
 import { LinkButton } from '@/components/ui/Button';
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator';
-import { wordChild, wordContainer } from '@/lib/animations';
+import { motionSafe, wordChild, wordContainer } from '@/lib/animations';
 import { VENUE } from '@/lib/content';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 
 /**
  * Full-viewport hero.
  *
- * The parallax is the point of the section. Three layers move at different
- * rates as you scroll away: the 3D scene at ~0.3x, the headline at ~0.8x, and
- * the scroll hint faster still. That difference in rate is what the eye reads as
- * depth — matched rates would just look like the page scrolling normally.
+ * Deliberately empty behind the type: no background image, no gradient, no 3D.
+ * The headline is the whole composition, so it gets the whole stage.
  *
- * All three are driven from one `useScroll` progress value through
- * `useTransform`, which keeps them on the compositor. Reading `scrollY` into
- * React state instead would re-render this subtree on every scroll frame.
+ * Two layers still move as the section scrolls away — the content block and the
+ * scroll hint, at different rates, so the section departs with a bit of depth
+ * rather than sliding off as one flat plane. Both are driven from a single
+ * `useScroll` progress value through `useTransform`, which keeps them on the
+ * compositor; reading `scrollY` into React state would re-render this subtree
+ * on every scroll frame.
  */
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -34,7 +35,6 @@ export function Hero() {
 
   // Under reduced motion every layer collapses to a rate of 1 (no relative
   // movement at all) rather than merely a gentler one.
-  const sceneY = useTransform(scrollYProgress, [0, 1], ['0%', prefersReducedMotion ? '0%' : '30%']);
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', prefersReducedMotion ? '0%' : '80%']);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, prefersReducedMotion ? 1 : 0]);
   const hintOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
@@ -48,37 +48,46 @@ export function Hero() {
       aria-labelledby="hero-heading"
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
     >
-      {/* Layer 1 — the 3D scene, slowest. */}
-      <motion.div style={{ y: sceneY }} className="absolute inset-0 will-animate">
-        <LazyHeroScene />
+      {/*
+        Brand watermark.
+
+        The source file is a JPG with a solid white background, so opacity alone
+        would leave a pale square floating over the ivory page. `mix-blend-multiply`
+        solves it properly: multiplying by white leaves the backdrop untouched, so
+        the white disappears, while the greens and pinks darken through. That also
+        avoids the halos a white-key would leave on this artwork's soft edges.
+
+        The blend only reaches the page background while nothing between here and
+        the body creates a stacking context — the section is `relative` with no
+        z-index or transform, which is fine. Adding a transform to the section
+        later would silently flatten this against nothing and bring the white box
+        back.
+
+        Opacity rides the existing `contentOpacity` so the watermark leaves with
+        the headline instead of lingering after the text has faded. Reusing that
+        value means no new motion machinery and no new reduced-motion branch.
+      */}
+      <motion.div
+        aria-hidden="true"
+        style={{ opacity: contentOpacity }}
+        className="pointer-events-none absolute inset-0 flex items-center justify-center"
+      >
+        <Image
+          src="/images/logo-watermark.jpg"
+          alt=""
+          width={2048}
+          height={2048}
+          priority
+          sizes="(max-width: 768px) 85vw, 620px"
+          className="h-auto w-[min(85vw,620px)] select-none opacity-[0.10] mix-blend-multiply"
+        />
       </motion.div>
 
-      {/*
-        Ivory vignette between the scene and the type. Not decoration — without
-        it the headline sits directly on moving geometry, and text contrast that
-        changes frame to frame cannot be relied on. Stronger on small screens,
-        where the model fills proportionally more of the frame and there is less
-        empty background for the type to sit against.
-      */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(253,251,247,0.88)_0%,rgba(253,251,247,0.6)_45%,rgba(253,251,247,0.9)_100%)] md:bg-[radial-gradient(ellipse_at_center,rgba(253,251,247,0.72)_0%,rgba(253,251,247,0.35)_45%,rgba(253,251,247,0.85)_100%)]"
-      />
-
-      {/* Layer 2 — the content, faster. */}
+      {/* The content, which is the whole composition. */}
       <motion.div
         style={{ y: contentY, opacity: contentOpacity }}
         className="container-page relative z-10 flex flex-col items-center gap-8 text-center will-animate"
       >
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="eyebrow"
-        >
-          {VENUE.address.city} · {VENUE.address.region}
-        </motion.p>
-
         {/*
           Per-word stagger. The words are wrapped in an overflow-hidden span so
           each one rises out of a mask rather than simply fading — but the
@@ -97,8 +106,19 @@ export function Hero() {
               key={`${word}-${index}`}
               className="inline-block overflow-hidden pb-[0.08em] align-bottom"
             >
+              {/*
+                `motionSafe`, not `prefersReducedMotion ? undefined : wordChild`.
+                Passing `undefined` looks like the obvious way to opt out, and it
+                silently breaks: `usePrefersReducedMotion` returns false on the
+                server and the first client render, so the span mounts with
+                `wordChild`, takes `initial="hidden"` (opacity 0), and then — when
+                the effect flips the flag — loses the variants that defined its
+                `visible` state. Framer has nothing left to animate to, so the
+                word stays invisible forever. A reduced variant set is needed
+                here, not the absence of one.
+              */}
               <motion.span
-                variants={prefersReducedMotion ? undefined : wordChild}
+                variants={motionSafe(wordChild, prefersReducedMotion)}
                 className="inline-block will-animate"
               >
                 {word}
