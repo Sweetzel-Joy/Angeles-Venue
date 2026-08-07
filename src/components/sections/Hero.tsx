@@ -79,7 +79,12 @@ export function Hero() {
           height={2048}
           priority
           sizes="(max-width: 768px) 85vw, 620px"
-          className="h-auto w-[min(85vw,620px)] select-none opacity-[0.10] mix-blend-multiply"
+          // The artwork is drawn to the edges of its square, so showing it as a
+          // floating panel leaves the leaves and grass ending in hard straight
+          // cuts mid-page. The radial mask fades the outer ring so the motif
+          // dissolves into the ivory instead of stopping at a rectangle.
+          // `-webkit-` prefix included: Safari still needs it for mask-image.
+          className="h-auto w-[min(85vw,620px)] select-none opacity-[0.10] mix-blend-multiply [-webkit-mask-image:radial-gradient(ellipse_at_center,#000_55%,transparent_82%)] [mask-image:radial-gradient(ellipse_at_center,#000_55%,transparent_82%)]"
         />
       </motion.div>
 
