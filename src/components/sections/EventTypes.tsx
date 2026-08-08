@@ -18,13 +18,17 @@ import type { EventType } from '@/types';
 export function EventTypes() {
   return (
     <section
-      id="events"
-      aria-labelledby="events-heading"
+      // `id` is the scroll target for the "Services" nav link in NAV_LINKS
+      // (src/lib/content.ts). The two must stay in step — a nav href pointing at
+      // an id that does not exist fails silently: the hash updates, the page
+      // does not move, and nothing is logged.
+      id="services"
+      aria-labelledby="services-heading"
       className="relative bg-ivory-100 py-24 md:py-36"
     >
       <div className="container-page flex flex-col gap-14">
         <SectionHeading
-          id="events-heading"
+          id="services-heading"
           eyebrow="What we host"
           title="Four kinds of night, one address"
           description="Each layout is a different room. Tell us which one you need and we will show you how it comes together."

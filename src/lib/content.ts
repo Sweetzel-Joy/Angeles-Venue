@@ -28,7 +28,7 @@ import type {
 export const VENUE: VenueDetails = {
   name: 'Angeles Venue',
   // TODO: Replace with the venue's tagline (3–6 words reads best in the hero).
-  tagline: 'Where occasions become memory',
+  tagline: 'Angeles Venue',
   // TODO: Replace with one or two sentences describing the venue.
   intro:
     'Your budget-friendly event place is right around the corner.',
