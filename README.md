@@ -54,7 +54,10 @@ Everything the page renders comes from one file:
 **Identity**
 - [x] `VENUE.name` — set to "Angeles Venue"
 - [ ] `VENUE.tagline`, `VENUE.intro`
-- [ ] `VENUE.address` (all five fields)
+- [x] `VENUE.address` — P1B-P4 B85 L2 Carissa Homes, Bagtas, Tanza, Cavite.
+      Postcode `4108` is the published code for Tanza and was **not** verified
+      against the lot; correct it if your mail uses a different one. It feeds
+      the JSON-LD that Google reads, not just the visible text.
 - [ ] `VENUE.phone`, `VENUE.email`
 - [ ] `VENUE.siteUrl` — must be the real deployed URL, or Open Graph images and
       canonical links resolve against `example.com`

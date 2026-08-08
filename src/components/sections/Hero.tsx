@@ -94,6 +94,30 @@ export function Hero() {
         className="container-page relative z-10 flex flex-col items-center gap-8 text-center will-animate"
       >
         {/*
+          Location line. Carries the full street address, so it is roughly twice
+          the length of a typical eyebrow label — hence the tighter tracking and
+          the width cap, which let it wrap to two centred lines on a phone
+          instead of forcing the page wider.
+
+          A <p>, not an <address>: the footer and booking section already provide
+          proper <address> elements, and a third would attach contact-info
+          semantics to the whole hero for no benefit.
+
+          `initial.y` is read from `prefersReducedMotion` rather than swapping
+          animation configs. Both `initial` and `animate` always name `opacity`
+          and `y`, so neither can be stranded the way the headline's variants
+          were when the reduced-motion flag flipped after mount.
+        */}
+        <motion.p
+          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="eyebrow max-w-xl text-balance tracking-[0.16em] sm:tracking-eyebrow"
+        >
+          {VENUE.address.street}, {VENUE.address.city}, {VENUE.address.region}
+        </motion.p>
+
+        {/*
           Per-word stagger. The words are wrapped in an overflow-hidden span so
           each one rises out of a mask rather than simply fading — but the
           heading text itself is unbroken in the accessibility tree, so screen

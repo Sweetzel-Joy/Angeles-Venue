@@ -33,11 +33,16 @@ export const VENUE: VenueDetails = {
   intro:
     'Your budget-friendly event place is right around the corner.',
   address: {
-    // TODO: Replace all address fields with the real address.
-    street: '123 Placeholder Street',
-    city: 'Angeles City',
-    region: 'Pampanga',
-    postalCode: '2009',
+    // Barangay (Bagtas) sits on the street line because there is no separate
+    // barangay field — that is where it belongs in a one-line PH address.
+    street: 'P1B-P4 B85 L2 Carissa Homes, Bagtas',
+    city: 'Tanza',
+    // The province, not the administrative region (CALABARZON). schema.org's
+    // `addressRegion` expects the province/state, and this feeds the JSON-LD.
+    region: 'Cavite',
+    // Supplied as the published code for Tanza, Cavite — not independently
+    // verified against the lot.
+    postalCode: '4108',
     country: 'Philippines',
   },
   // TODO: Replace with the real booking phone number.
