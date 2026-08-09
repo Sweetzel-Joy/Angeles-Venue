@@ -11,8 +11,8 @@ import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 /**
  * Full-viewport hero.
  *
- * Deliberately empty behind the type: no background image, no gradient, no 3D.
- * The headline is the whole composition, so it gets the whole stage.
+ * Deliberately empty behind the mark: no background image, no gradient, no 3D.
+ * The logo is the whole composition, so it gets the whole stage.
  *
  * Two layers still move as the section scrolls away — the content block and the
  * scroll hint, at different rates, so the section departs with a bit of depth
@@ -47,75 +47,60 @@ export function Hero() {
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
     >
       {/*
-        No background layer and no contrast scrims here any more. The banner
-        below *is* the hero's artwork, and it sits in the content flow rather
-        than behind it — so the type has plain ivory behind it and the scrims
-        that used to protect it from dense foliage would now only mute the page.
-      */}
-
-      {/*
-        This wrapper deliberately has **no** `z-index`, no opacity and no
-        `will-change`. Any of those would make it a stacking context, and a
-        stacking context isolates `mix-blend-mode` from the page background —
-        which would leave the banner's white ground painting as a visible white
-        panel on the ivory. It has to stay a plain box all the way up to <body>.
-
-        That is why the scroll fade lives on an inner wrapper around the text
-        instead of out here.
+        No background layer and no contrast scrims. The logo below sits in the
+        content flow on plain ivory, so there is nothing for a scrim to protect.
       */}
       <div className="container-page flex flex-col items-center gap-8 text-center">
-        {/*
-          The venue name and location now exist only as pixels inside the
-          banner, so this visually-hidden heading carries them as real text.
-
-          It does three jobs at once: the page needs exactly one <h1>; the
-          section's `aria-labelledby="hero-heading"` points at this id; and
-          search engines read text, not artwork. Remove it and the site loses
-          its own name everywhere that is not a screenshot.
-
-          The banner then takes `alt=""` deliberately — its words are already
-          announced by this heading, and giving the image alt text as well
-          would read the venue name out twice in a row.
-
-          `mix-blend-multiply` because the PNG has no alpha: sampled, every
-          pixel is A=255 on a pure #FFFFFF ground. Multiplying by white leaves
-          the ivory untouched, so the white card disappears and only the artwork
-          remains.
-
-          The banner is therefore **deliberately not animated**. It first shipped
-          inside a fading `motion.div`, and the opacity animation plus
-          `will-change` created a stacking context that isolated the blend — the
-          white ground came back as a visible panel, which a pixel comparison
-          caught. A static image is the price of the blend working.
-
-          Rendered at its natural 1.79 ratio rather than stretched: the hero is
-          `100svh` and far taller than the artwork on a phone, so forcing it to
-          cover would crop "ANGELES" off both edges.
-        */}
-        <h1 id="hero-heading" className="sr-only">
-          Welcome to {VENUE.name} — {VENUE.address.city}, {VENUE.address.region}
-        </h1>
-
-        <Image
-          src="/images/hero-banner.png"
-          alt=""
-          width={1080}
-          height={605}
-          priority
-          sizes="(max-width: 768px) 100vw, 900px"
-          className="h-auto w-full max-w-4xl select-none mix-blend-multiply"
-        />
-
-        {/*
-          The scroll fade lives here, wrapping only the text, rather than around
-          the whole hero. Its `opacity` and `will-change` make it a stacking
-          context — harmless for text, fatal for the blended banner above, which
-          is why the banner sits outside it.
-        */}
         <motion.div
           style={{ y: contentY, opacity: contentOpacity }}
           className="flex flex-col items-center gap-8 will-animate"
         >
+          {/*
+            The venue name exists only as pixels inside the logo, so this
+            visually-hidden heading carries it as real text.
+
+            It does three jobs: the page needs exactly one <h1>; the section's
+            `aria-labelledby="hero-heading"` points at this id; and search
+            engines read text, not artwork. The logo then takes `alt=""` —
+            its words are already announced here, and giving the image alt text
+            as well would read the venue name out twice in a row.
+          */}
+          <h1 id="hero-heading" className="sr-only">
+            Welcome to {VENUE.name} — {VENUE.address.city}, {VENUE.address.region}
+          </h1>
+
+          {/*
+            Unlike the banner this replaces, the artwork has a real alpha
+            channel — 97% of the source pixels are fully transparent — so the
+            ivory shows straight through and no `mix-blend-multiply` is needed.
+            That matters structurally: a blend would have to be isolated from
+            every stacking context above it, which is why the old banner had to
+            sit *outside* this animating wrapper. With alpha it can sit inside
+            and fade with everything else.
+
+            Rendered from a cropped copy of the source. The original is
+            2000x2000 with the mark filling only 59% x 52% of it and sitting
+            off-centre; uncropped it would render small inside its own box,
+            visibly off-axis, with the empty margin shoving the copy below it
+            down the page.
+          */}
+          <motion.div
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="w-full max-w-[26rem]"
+          >
+            <Image
+              src="/images/logo-monogram.png"
+              alt=""
+              width={1272}
+              height={1126}
+              priority
+              sizes="(max-width: 480px) 88vw, 416px"
+              className="h-auto w-full select-none"
+            />
+          </motion.div>
+
           <motion.p
             initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
             animate={{ opacity: 1, y: 0 }}

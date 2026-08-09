@@ -107,7 +107,34 @@ Everything the page renders comes from one file:
 **Photography**
 - [x] About section — `public/images/about-pavilion.jpg`
 - [x] Gallery — 4 real photos in `public/images/gallery-*.jpg`
-- [x] Hero banner — `public/images/hero-banner.png`
+- [x] Hero — the AV monogram, `public/images/logo-monogram.png`.
+- [x] Navbar — the leaf/blossom mark, `public/images/logo-watermark.jpg`.
+
+      **The two marks are deliberately different**, and only the monogram has an
+      alpha channel. The watermark is a JPEG on an opaque white ground, which is
+      why the navbar keeps `rounded-lg` — and why it cannot use
+      `mix-blend-multiply` to drop that white: the bar gains `backdrop-blur-lg`
+      once scrolled, creating a stacking context that isolates the blend.
+
+      Both use `alt=""`: the venue name is drawn inside each artwork and is
+      already announced by the `sr-only` `<h1>` (hero) and the wordmark
+      (navbar), so alt text would read it out twice.
+
+      > **This file is cropped, and must stay cropped.** The source export is
+      > 2000×2000 with the mark filling only 59% × 52% of it, off-centre. Drop
+      > that file in unchanged and the logo renders ~40% smaller than its box,
+      > visibly off-axis, with the empty margin pushing the hero copy down. The
+      > crop script is `scratchpad/verify/crop-logo.mjs`; it measures the
+      > artwork's bounding box rather than hard-coding it.
+
+      > It has a **real alpha channel**, so no `mix-blend-multiply` is needed —
+      > which is also why the hero logo can live inside the animating wrapper.
+      > A blended image cannot: any stacking context above it isolates the
+      > blend. Keep that in mind if the mark is ever re-exported flattened.
+
+      `hero-banner.png`, `hero-leaf-frame.png` and `logo-watermark.jpg` are all
+      unreferenced now. The first two are untracked in git (deleting them is
+      unrecoverable); `logo-watermark.jpg` is tracked.
 - [x] **No stock photography remains.** The last four Unsplash images lived on
       the event-type cards, which are gone. `images.unsplash.com` in
       `next.config.mjs` is now unused config — harmless, and still there if you

@@ -112,16 +112,21 @@ export function Navbar() {
             Brand mark and wordmark share a single anchor: one tab stop, one
             accessible name, one focus ring around both.
 
-            `alt=""` is deliberate. The logo has "ANGELES Venue" drawn inside it
+            `alt=""` is deliberate. The logo has "Angeles Venue" drawn inside it
             and the span beside it says the same words — giving the image alt
             text as well would make a screen reader announce the venue name
             twice for one link. The text carries the name; the image is
             decorative.
 
-            No `mix-blend-multiply` on the white ground here, unlike the hero
-            banner: this bar gains `backdrop-blur-lg` once scrolled, which
-            creates a stacking context and would isolate the blend. `rounded-lg`
-            instead, so the white edge reads as a deliberate mark.
+            This file is a JPEG with an **opaque #FFFFFF ground** (sampled:
+            alpha 255 throughout), so its square edge is faintly visible against
+            the ivory bar. `rounded-lg` makes that edge read as a deliberate
+            mark rather than an untrimmed rectangle.
+
+            `mix-blend-multiply` would remove the white outright but cannot be
+            used here: the bar gains `backdrop-blur-lg` once scrolled, and that
+            creates a stacking context, which isolates the blend. (The hero's
+            monogram needs none of this — it has a real alpha channel.)
           */}
           <a
             href="#hero"

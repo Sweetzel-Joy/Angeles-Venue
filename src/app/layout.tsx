@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Cormorant_Garamond, Dancing_Script, Inter } from 'next/font/google';
+import { Cormorant_Garamond, Inter } from 'next/font/google';
 import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvider';
 import { VENUE } from '@/lib/content';
 import './globals.css';
@@ -14,23 +14,6 @@ const display = Cormorant_Garamond({
   weight: ['300', '400', '500', '600'],
   style: ['normal', 'italic'],
   variable: '--font-display',
-  display: 'swap',
-});
-
-/**
- * Script face, used *only* for the venue name in the hero.
- *
- * Deliberately not wired into `font-display`: that drives every heading, the
- * testimonial quotes and the amenity counter numerals, and script numerals and
- * long headings are hard to read. This is a brand accent, not a heading face.
- *
- * Only weight 700 is loaded — the design calls for the bold cut, and shipping
- * unused weights is dead payload.
- */
-const script = Dancing_Script({
-  subsets: ['latin'],
-  weight: ['700'],
-  variable: '--font-script',
   display: 'swap',
 });
 
@@ -101,7 +84,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${display.variable} ${script.variable} ${sans.variable}`}
+      className={`${display.variable} ${sans.variable}`}
     >
       <body>
         {/* First focusable element on the page. Visually hidden until focused,
