@@ -24,9 +24,6 @@ const Services = dynamic(() =>
 const Gallery = dynamic(() =>
   import('@/components/sections/Gallery').then((mod) => mod.Gallery),
 );
-const Amenities = dynamic(() =>
-  import('@/components/sections/Amenities').then((mod) => mod.Amenities),
-);
 const Testimonials = dynamic(() =>
   import('@/components/sections/Testimonials').then((mod) => mod.Testimonials),
 );
@@ -50,7 +47,6 @@ export default function HomePage() {
         <About />
         <Services />
         <Gallery />
-        <Amenities />
         <Testimonials />
         <BookingCta />
       </main>

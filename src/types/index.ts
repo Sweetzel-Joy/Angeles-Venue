@@ -57,26 +57,6 @@ export interface ServiceAddOn {
   note?: string;
 }
 
-export interface Amenity {
-  id: string;
-  label: string;
-  /** The number the counter animates to. */
-  value: number;
-  /** Rendered after the number, e.g. `"+"` or `" sqm"`. */
-  suffix?: string;
-  /** Rendered before the number, e.g. `"₱"`. */
-  prefix?: string;
-  description: string;
-  icon: AmenityIconName;
-}
-
-export type AmenityIconName =
-  | 'guests'
-  | 'hours'
-  | 'chairs'
-  | 'wifi'
-  | 'water';
-
 export interface Testimonial {
   id: string;
   quote: string;

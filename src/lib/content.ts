@@ -13,7 +13,6 @@
  */
 
 import type {
-  Amenity,
   GalleryItem,
   NavLink,
   ServiceAddOn,
@@ -76,7 +75,6 @@ export const NAV_LINKS: readonly NavLink[] = [
   { label: 'About', href: '#about' },
   { label: 'Services', href: '#services' },
   { label: 'Gallery', href: '#gallery' },
-  { label: 'Venue', href: '#venue' },
   { label: 'Stories', href: '#stories' },
 ] as const;
 
@@ -93,8 +91,11 @@ export const ABOUT = {
     'Angeles venue offers a place for your special occassions. It can accommodate 100pax.',
     'Use the second paragraph for what the space means in practice: how it adapts between event types, what the team handles for you, and why planners come back.',
   ],
+  // Capacity and hours lead: they are the two facts someone weighing a booking
+  // checks first. Both moved here when the Venue section was removed.
   stats: [
-    // TODO: Replace with two real headline figures.
+    { label: 'Guests', value: '100' },
+    { label: 'Hours of use', value: '10' },
     { label: 'Events hosted', value: '20+' },
     { label: 'Years operating', value: '5' },
   ],
@@ -137,7 +138,11 @@ export const SERVICE_PACKAGES: readonly ServicePackage[] = [
       '10 hours of use, 11am–9pm (flexible based on availability)',
       'Bluetooth speaker',
       'Water dispenser with 1 gallon of drinking water (cold only)',
-      'Kitchen and comfort room',
+      // Supplied separately, not on the rate card image. The comfort room and
+      // lavatory are inside this room, which is why the kitchen line below no
+      // longer mentions a CR — listing both would imply two of them.
+      'Guest room with a bed, comfort room and lavatory',
+      'Kitchen',
       'Free wifi (3 users only)',
     ],
   },
@@ -175,65 +180,6 @@ export const SERVICE_ADDONS: readonly ServiceAddOn[] = [
   { id: 'water', label: 'Drinking water', note: 'per gallon' },
   { id: 'pool', label: 'Portable swimming pool', note: '2 × 4 m' },
   { id: 'videoke', label: 'Videoke' },
-] as const;
-
-/* -------------------------------------------------------------------------- */
-/*  Amenities — the animated counters                                         */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Every figure here comes off the venue's own rate card.
- *
- * The tiles that used to sit here were mine, and most were wrong: floor area,
- * parking bays, stage width and menu options all still read 0 because nobody
- * knew them, and "Air-conditioned — 100%" was simply false for an open-sided
- * pavilion cooled by electric fans. A confident-looking wrong number on a
- * marketing page is worse than an absent one, so they were removed rather than
- * guessed at.
- *
- * Add a tile back only when you have the real figure for it.
- */
-export const AMENITIES: readonly Amenity[] = [
-  {
-    id: 'capacity',
-    label: 'Guests',
-    value: 100,
-    suffix: '',
-    description: 'The space can hold up to a hundred people.',
-    icon: 'guests',
-  },
-  {
-    id: 'hours',
-    label: 'Hours of use',
-    value: 10,
-    suffix: '',
-    description: '11am to 9pm, flexible based on availability.',
-    icon: 'hours',
-  },
-  {
-    id: 'chairs',
-    label: 'Monobloc chairs',
-    value: 50,
-    suffix: '',
-    description: 'Included with Table Setup B; more available on request.',
-    icon: 'chairs',
-  },
-  {
-    id: 'wifi',
-    label: 'Wi-Fi users',
-    value: 3,
-    suffix: '',
-    description: 'Free wifi, three devices at a time.',
-    icon: 'wifi',
-  },
-  {
-    id: 'water',
-    label: 'Gallons of water',
-    value: 2,
-    suffix: '',
-    description: 'With either table setup. Cold drinking water on tap.',
-    icon: 'water',
-  },
 ] as const;
 
 /* -------------------------------------------------------------------------- */

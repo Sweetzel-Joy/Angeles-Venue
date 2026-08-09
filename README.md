@@ -72,7 +72,13 @@ Everything the page renders comes from one file:
 
 **Copy**
 - [ ] `ABOUT.heading`, `ABOUT.body`, `ABOUT.stats`
-- [x] `SERVICE_PACKAGES` / `SERVICE_ADDONS` — the real rate card. Replaced the
+- [x] `SERVICE_PACKAGES` / `SERVICE_ADDONS` — the real rate card, **plus one
+      addition not printed on it**: "Guest room with a bed, comfort room and
+      lavatory". Because the CR and lavatory sit inside that room, the kitchen
+      line is just "Kitchen" — do not restore "Kitchen and comfort room" when
+      diffing against the card, or the page will claim two comfort rooms.
+
+      Replaced the
       invented Weddings/Corporate/Concerts/Private-Parties cards, which claimed
       a bridal suite, AV rigging, breakout rooms, a house PA, a green room and a
       late licence — none of which this venue has.
@@ -87,12 +93,16 @@ Everything the page renders comes from one file:
       named people is dishonest and, in many jurisdictions, unlawful.
 
 **Numbers**
-- [x] `AMENITIES` — rebuilt from the rate card: 100 guests, 10 hours, 50 chairs,
-      3 wifi users, 2 gallons of water. The floor-area, parking, stage-width and
-      menu-option tiles were **removed, not filled** — nobody knew those figures
-      and they were still reading 0. The "Air-conditioned — 100%" tile was
-      removed as simply untrue for an open-sided pavilion with electric fans.
-      Add a tile back only when you have the real number.
+- [x] `ABOUT.stats` — Guests 100, Hours of use 10, Events hosted 20+, Years
+      operating 5.
+
+      > The **Venue section was removed entirely**, along with `AMENITIES`, the
+      > `Amenity`/`AmenityIconName` types, `Amenities.tsx`, `Counter.tsx` and the
+      > `useCountUp` hook. Capacity and hours moved into `ABOUT.stats`; chairs,
+      > wifi users and water gallons were dropped because the Services packages
+      > already state them. `useInViewOnce` in `lib/hooks/useInViewOnce.ts` now
+      > has no consumer — its sibling `useIsInView` is still used by the two 3D
+      > components, so the file stays.
 
 **Photography**
 - [x] About section — `public/images/about-pavilion.jpg`

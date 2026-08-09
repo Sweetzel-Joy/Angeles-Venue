@@ -6,7 +6,58 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 import { TiltCard } from '@/components/ui/TiltCard';
 import { fadeInUp } from '@/lib/animations';
 import { SERVICE_ADDONS, SERVICE_PACKAGES } from '@/lib/content';
+import { cn } from '@/lib/utils';
 import type { ServicePackage } from '@/types';
+
+/**
+ * Per-card colour, applied by position so the three tiers are distinguishable
+ * at a glance.
+ *
+ * Two things to keep in mind when editing these:
+ *
+ *  1. **Write complete class strings.** Tailwind's JIT scans source text, so a
+ *     built-up name like `` `from-${tone}-200` `` compiles to no CSS at all and
+ *     the card silently falls back to looking flat.
+ *  2. **Keep the tints light.** The card summary is `text-ink-muted`
+ *     (`#6B6155`); against a full-strength `sage-200` it measures about 3.98:1,
+ *     under the 4.5:1 AA floor. The washes below are held at roughly
+ *     `sage-100` weight so the text stays legible — colour that costs
+ *     readability is not a win. There is a contrast check in
+ *     `scratchpad/verify` that measures the painted pixels, not the intent.
+ */
+interface CardTone {
+  surface: string;
+  border: string;
+  bullet: string;
+  label: string;
+}
+
+const CARD_TONES: readonly CardTone[] = [
+  {
+    surface:
+      'bg-gradient-to-b from-sage-200/70 from-0% via-ivory-50 via-45% to-ivory-50',
+    border: 'border-sage-300/50',
+    bullet: 'bg-sage-400',
+    label: 'text-sage-800',
+  },
+  {
+    surface:
+      'bg-gradient-to-b from-clay-200/75 from-0% via-ivory-50 via-45% to-ivory-50',
+    border: 'border-clay-300/45',
+    bullet: 'bg-clay-400',
+    label: 'text-clay-700',
+  },
+  {
+    surface:
+      'bg-gradient-to-b from-sage-400/60 from-0% via-ivory-50 via-45% to-ivory-50',
+    border: 'border-sage-400/50',
+    bullet: 'bg-sage-600',
+    label: 'text-sage-800',
+  },
+];
+
+/** Fallback so an added fourth package renders rather than crashing. */
+const DEFAULT_TONE = CARD_TONES[0] as CardTone;
 
 /**
  * The venue's bookable packages and the extras available alongside them.
@@ -49,6 +100,7 @@ export function Services() {
                 // Only the first package is standalone; the other two are
                 // "Place + …", so they build on it rather than replacing it.
                 buildsOnBase={index > 0}
+                tone={CARD_TONES[index] ?? DEFAULT_TONE}
               />
             </RevealItem>
           ))}
@@ -58,7 +110,7 @@ export function Services() {
             these are line items, not packages, and giving them equal visual
             weight would bury the three things people actually choose between. */}
         <Reveal variants={fadeInUp}>
-          <div className="rounded-2xl border border-ink/8 bg-ivory-50 p-6 shadow-soft sm:p-8">
+          <div className="rounded-2xl border border-sage-300/35 bg-gradient-to-b from-sage-200/30 via-ivory-50 to-ivory-50 p-6 shadow-soft sm:p-8">
             <h3 className="eyebrow">Also available, charged separately</h3>
             <ul className="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               {SERVICE_ADDONS.map((addOn) => (
@@ -99,12 +151,19 @@ export function Services() {
 interface PackageCardProps {
   servicePackage: ServicePackage;
   buildsOnBase: boolean;
+  tone: CardTone;
 }
 
-function PackageCard({ servicePackage, buildsOnBase }: PackageCardProps) {
+function PackageCard({ servicePackage, buildsOnBase, tone }: PackageCardProps) {
   return (
     <TiltCard maxTilt={7} lift={16} className="h-full rounded-2xl">
-      <article className="flex h-full flex-col gap-5 rounded-2xl border border-ink/8 bg-ivory-50 p-6 shadow-soft sm:p-7">
+      <article
+        className={cn(
+          'flex h-full flex-col gap-5 rounded-2xl border p-6 shadow-soft sm:p-7',
+          tone.surface,
+          tone.border,
+        )}
+      >
         <header className="flex flex-col gap-2">
           <h3 className="font-display text-2xl font-light text-ink">
             {servicePackage.name}
@@ -114,9 +173,14 @@ function PackageCard({ servicePackage, buildsOnBase }: PackageCardProps) {
           </p>
         </header>
 
-        <div className="flex flex-1 flex-col gap-3 border-t border-ink/8 pt-5">
+        <div className="flex flex-1 flex-col gap-3 border-t border-ink/10 pt-5">
           {buildsOnBase && (
-            <p className="text-xs font-medium uppercase tracking-wider text-clay-600">
+            <p
+              className={cn(
+                'text-xs font-medium uppercase tracking-wider',
+                tone.label,
+              )}
+            >
               Everything in Place only, plus
             </p>
           )}
@@ -129,7 +193,10 @@ function PackageCard({ servicePackage, buildsOnBase }: PackageCardProps) {
               >
                 <span
                   aria-hidden="true"
-                  className="mt-1.5 h-1.5 w-1.5 shrink-0 self-start rounded-full bg-sage-400"
+                  className={cn(
+                    'mt-1.5 h-1.5 w-1.5 shrink-0 self-start rounded-full',
+                    tone.bullet,
+                  )}
                 />
                 {inclusion}
               </li>
