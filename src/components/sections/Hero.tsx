@@ -44,7 +44,10 @@ export function Hero() {
       ref={sectionRef}
       id="hero"
       aria-labelledby="hero-heading"
-      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
+      // `bg-ivory-100` matches Services (Services.tsx). It also gives the hero
+      // a boundary against About below it, which is `ivory-50` — the two were
+      // previously the same shade and ran together with no seam.
+      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ivory-100"
     >
       {/*
         No background layer and no contrast scrims. The logo below sits in the
@@ -101,14 +104,39 @@ export function Hero() {
             />
           </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="max-w-xl text-base leading-relaxed text-ink-muted md:text-lg"
-          >
-            {VENUE.intro}
-          </motion.p>
+          {/* Intro and address are grouped so they read as one block. The
+              parent's `gap-8` would otherwise put 2rem between them, which
+              reads as two unrelated statements rather than a line and its
+              location. */}
+          <div className="flex flex-col items-center gap-3">
+            <motion.p
+              initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="max-w-xl text-base leading-relaxed text-ink-muted md:text-lg"
+            >
+              {VENUE.intro}
+            </motion.p>
+
+            {/*
+              Composed from the `VENUE.address` fields rather than written out,
+              so `content.ts` stays the one source of truth and the visible text
+              cannot drift from the JSON-LD that layout.tsx feeds to search
+              engines from those same fields.
+
+              Postcode and country are omitted deliberately — this is the
+              short, human form. `not-italic` because browsers italicise
+              <address> by default.
+            */}
+            <motion.address
+              initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="max-w-xl text-sm not-italic leading-relaxed text-ink-muted"
+            >
+              {VENUE.address.street}, {VENUE.address.city}, {VENUE.address.region}
+            </motion.address>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}

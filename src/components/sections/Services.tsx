@@ -82,8 +82,8 @@ export function Services() {
         <SectionHeading
           id="services-heading"
           eyebrow="What we offer"
-          title="Three ways to book the space"
-          description="Every package includes the venue itself. Tell us the date and the headcount and we will come back with a quote."
+          title="Pick your package"
+          description="Start with the venue, add what you need. Tell us the date and the headcount and we will come back with a quote."
           align="center"
           className="mx-auto"
         />

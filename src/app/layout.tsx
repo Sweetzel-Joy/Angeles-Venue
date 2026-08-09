@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvider';
+import { Preloader } from '@/components/ui/Preloader';
 import { VENUE } from '@/lib/content';
 import './globals.css';
 
@@ -49,7 +50,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#FDFBF7',
+  // ivory-100 — matches the preloader and the hero, i.e. whatever is actually
+  // at the top of the page. ivory-50 (the body) would leave the mobile browser
+  // chrome a shade lighter than the panel it frames.
+  themeColor: '#F7F1E8',
   width: 'device-width',
   initialScale: 1,
 };
@@ -96,7 +100,12 @@ export default function RootLayout({
           Skip to main content
         </a>
 
-        <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        {/* Inside the provider so it can reach the Lenis instance, and after
+            the skip link so the skip link stays the first focusable element. */}
+        <SmoothScrollProvider>
+          <Preloader />
+          {children}
+        </SmoothScrollProvider>
 
         <script
           type="application/ld+json"

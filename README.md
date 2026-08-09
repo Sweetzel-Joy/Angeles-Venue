@@ -174,7 +174,7 @@ src/
   components/
     3d/                     Canvas scenes — all client-only
     sections/               the eight page sections
-    ui/                     Navbar, Button, Reveal, TiltCard, Counter,
+    ui/                     Navbar, Preloader, Button, Reveal, TiltCard,
                             Lightbox, floating-label fields, ScrollIndicator
     providers/              Lenis smooth scroll
   lib/
@@ -235,6 +235,32 @@ rather than being sized for a desktop window and swamping a phone screen.
   DOM).
 - Every animation respects `prefers-reduced-motion`, with a CSS backstop in
   `globals.css` for anything added later that forgets to check.
+
+### The preloader
+
+`src/components/ui/Preloader.tsx`, mounted in `layout.tsx`. Three constraints,
+all easy to undo by accident:
+
+1. **It must be server-rendered.** A preloader that mounts after hydration
+   paints the page first and *then* covers it — backwards, and it looks like a
+   bug. Being in the initial HTML puts it in the first paint. Nothing about this
+   is visible in the hydrated DOM, so the check asserts it against the raw HTML
+   response.
+2. **The exit guard is effect-scoped, not a ref.** It exists only to stop
+   `load` and the 4s cap from both scheduling the exit. As a `useRef` it also
+   survived the cleanup React 18 StrictMode performs between its double mount:
+   the second run found the guard already set, scheduled nothing, and the
+   overlay stayed up permanently. Likewise `prefersReducedMotion` is *not* an
+   effect dependency — it settles from `false` to its real value after mount,
+   and rebuilding the timers mid-flight is the same failure.
+3. **There is a CSS failsafe** (`#preloader` in `globals.css`) that retires the
+   overlay at 8s with no JS involved. Without it, a JS failure leaves the whole
+   site sitting in the DOM behind an opaque panel. The reduced-motion block at
+   the bottom of that file overrides `animation-duration` but not
+   `animation-delay`, so the failsafe still waits its 8s there.
+
+Its background is `ivory-100` to equal the hero's, so the fade dissolves the
+logo and type without the ground changing colour underneath.
 
 ### Two non-obvious bugs this code works around
 

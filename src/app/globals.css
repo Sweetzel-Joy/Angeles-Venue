@@ -116,6 +116,31 @@
     will-change: transform, opacity;
   }
 
+  /*
+    Failsafe for the preloader.
+
+    The overlay is server-rendered so it is part of the first paint, and React
+    unmounts it once loading finishes. If JavaScript never runs, React never
+    unmounts it — and the whole site sits in the DOM behind an opaque panel,
+    permanently unreachable. This rule retires it with no JS involved.
+
+    8s is far longer than the component's own 4s cap, so in normal operation
+    the node is long gone before this fires and the animation never runs.
+
+    Note for anyone editing the reduced-motion block below: it overrides
+    `animation-duration`, not `animation-delay`, so this still waits its 8s
+    there rather than firing instantly.
+  */
+  #preloader {
+    animation: preloader-failsafe 0.4s ease 8s forwards;
+  }
+
+  @keyframes preloader-failsafe {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
 }
 
 /*
