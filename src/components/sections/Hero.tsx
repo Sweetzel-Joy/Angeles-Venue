@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { useRef } from 'react';
 import { LinkButton } from '@/components/ui/Button';
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator';
-import { motionSafe, wordChild, wordContainer } from '@/lib/animations';
 import { VENUE } from '@/lib/content';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 
@@ -39,7 +38,6 @@ export function Hero() {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, prefersReducedMotion ? 1 : 0]);
   const hintOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
-  const headlineWords = VENUE.tagline.split(' ');
 
   return (
     <section
@@ -49,137 +47,99 @@ export function Hero() {
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden"
     >
       {/*
-        Brand watermark.
-
-        The source file is a JPG with a solid white background, so opacity alone
-        would leave a pale square floating over the ivory page. `mix-blend-multiply`
-        solves it properly: multiplying by white leaves the backdrop untouched, so
-        the white disappears, while the greens and pinks darken through. That also
-        avoids the halos a white-key would leave on this artwork's soft edges.
-
-        The blend only reaches the page background while nothing between here and
-        the body creates a stacking context — the section is `relative` with no
-        z-index or transform, which is fine. Adding a transform to the section
-        later would silently flatten this against nothing and bring the white box
-        back.
-
-        Opacity rides the existing `contentOpacity` so the watermark leaves with
-        the headline instead of lingering after the text has faded. Reusing that
-        value means no new motion machinery and no new reduced-motion branch.
+        No background layer and no contrast scrims here any more. The banner
+        below *is* the hero's artwork, and it sits in the content flow rather
+        than behind it — so the type has plain ivory behind it and the scrims
+        that used to protect it from dense foliage would now only mute the page.
       */}
-      <motion.div
-        aria-hidden="true"
-        style={{ opacity: contentOpacity }}
-        className="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
+
+      {/*
+        This wrapper deliberately has **no** `z-index`, no opacity and no
+        `will-change`. Any of those would make it a stacking context, and a
+        stacking context isolates `mix-blend-mode` from the page background —
+        which would leave the banner's white ground painting as a visible white
+        panel on the ivory. It has to stay a plain box all the way up to <body>.
+
+        That is why the scroll fade lives on an inner wrapper around the text
+        instead of out here.
+      */}
+      <div className="container-page flex flex-col items-center gap-8 text-center">
+        {/*
+          The venue name and location now exist only as pixels inside the
+          banner, so this visually-hidden heading carries them as real text.
+
+          It does three jobs at once: the page needs exactly one <h1>; the
+          section's `aria-labelledby="hero-heading"` points at this id; and
+          search engines read text, not artwork. Remove it and the site loses
+          its own name everywhere that is not a screenshot.
+
+          The banner then takes `alt=""` deliberately — its words are already
+          announced by this heading, and giving the image alt text as well
+          would read the venue name out twice in a row.
+
+          `mix-blend-multiply` because the PNG has no alpha: sampled, every
+          pixel is A=255 on a pure #FFFFFF ground. Multiplying by white leaves
+          the ivory untouched, so the white card disappears and only the artwork
+          remains.
+
+          The banner is therefore **deliberately not animated**. It first shipped
+          inside a fading `motion.div`, and the opacity animation plus
+          `will-change` created a stacking context that isolated the blend — the
+          white ground came back as a visible panel, which a pixel comparison
+          caught. A static image is the price of the blend working.
+
+          Rendered at its natural 1.79 ratio rather than stretched: the hero is
+          `100svh` and far taller than the artwork on a phone, so forcing it to
+          cover would crop "ANGELES" off both edges.
+        */}
+        <h1 id="hero-heading" className="sr-only">
+          Welcome to {VENUE.name} — {VENUE.address.city}, {VENUE.address.region}
+        </h1>
+
         <Image
-          src="/images/logo-watermark.jpg"
+          src="/images/hero-banner.png"
           alt=""
-          width={2048}
-          height={2048}
+          width={1080}
+          height={605}
           priority
-          sizes="(max-width: 768px) 85vw, 620px"
-          // The artwork is drawn to the edges of its square, so showing it as a
-          // floating panel leaves the leaves and grass ending in hard straight
-          // cuts mid-page. The radial mask fades the outer ring so the motif
-          // dissolves into the ivory instead of stopping at a rectangle.
-          // `-webkit-` prefix included: Safari still needs it for mask-image.
-          className="h-auto w-[min(85vw,620px)] select-none opacity-[0.10] mix-blend-multiply [-webkit-mask-image:radial-gradient(ellipse_at_center,#000_55%,transparent_82%)] [mask-image:radial-gradient(ellipse_at_center,#000_55%,transparent_82%)]"
+          sizes="(max-width: 768px) 100vw, 900px"
+          className="h-auto w-full max-w-4xl select-none mix-blend-multiply"
         />
-      </motion.div>
-
-      {/* The content, which is the whole composition. */}
-      <motion.div
-        style={{ y: contentY, opacity: contentOpacity }}
-        className="container-page relative z-10 flex flex-col items-center gap-8 text-center will-animate"
-      >
-        {/*
-          Location line. Carries the full street address, so it is roughly twice
-          the length of a typical eyebrow label — hence the tighter tracking and
-          the width cap, which let it wrap to two centred lines on a phone
-          instead of forcing the page wider.
-
-          A <p>, not an <address>: the footer and booking section already provide
-          proper <address> elements, and a third would attach contact-info
-          semantics to the whole hero for no benefit.
-
-          `initial.y` is read from `prefersReducedMotion` rather than swapping
-          animation configs. Both `initial` and `animate` always name `opacity`
-          and `y`, so neither can be stranded the way the headline's variants
-          were when the reduced-motion flag flipped after mount.
-        */}
-        <motion.p
-          initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="eyebrow max-w-xl text-balance tracking-[0.16em] sm:tracking-eyebrow"
-        >
-          {VENUE.address.street}, {VENUE.address.city}, {VENUE.address.region}
-        </motion.p>
 
         {/*
-          Per-word stagger. The words are wrapped in an overflow-hidden span so
-          each one rises out of a mask rather than simply fading — but the
-          heading text itself is unbroken in the accessibility tree, so screen
-          readers announce one sentence, not a list of words.
+          The scroll fade lives here, wrapping only the text, rather than around
+          the whole hero. Its `opacity` and `will-change` make it a stacking
+          context — harmless for text, fatal for the blended banner above, which
+          is why the banner sits outside it.
         */}
-        <motion.h1
-          id="hero-heading"
-          variants={wordContainer}
-          initial="hidden"
-          animate="visible"
-          className="max-w-4xl text-display-md font-light leading-[1.02] text-ink md:text-display-lg"
-        >
-          {headlineWords.map((word, index) => (
-            <span
-              key={`${word}-${index}`}
-              className="inline-block overflow-hidden pb-[0.08em] align-bottom"
-            >
-              {/*
-                `motionSafe`, not `prefersReducedMotion ? undefined : wordChild`.
-                Passing `undefined` looks like the obvious way to opt out, and it
-                silently breaks: `usePrefersReducedMotion` returns false on the
-                server and the first client render, so the span mounts with
-                `wordChild`, takes `initial="hidden"` (opacity 0), and then — when
-                the effect flips the flag — loses the variants that defined its
-                `visible` state. Framer has nothing left to animate to, so the
-                word stays invisible forever. A reduced variant set is needed
-                here, not the absence of one.
-              */}
-              <motion.span
-                variants={motionSafe(wordChild, prefersReducedMotion)}
-                className="inline-block will-animate"
-              >
-                {word}
-                {index < headlineWords.length - 1 && ' '}
-              </motion.span>
-            </span>
-          ))}
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="max-w-xl text-base leading-relaxed text-ink-muted md:text-lg"
-        >
-          {VENUE.intro}
-        </motion.p>
-
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.1 }}
-          className="flex flex-wrap items-center justify-center gap-3"
+          style={{ y: contentY, opacity: contentOpacity }}
+          className="flex flex-col items-center gap-8 will-animate"
         >
-          <LinkButton href="#booking" size="lg">
-            Book Your Event
-          </LinkButton>
-          <LinkButton href="#gallery" variant="secondary" size="lg">
-            See the space
-          </LinkButton>
+          <motion.p
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="max-w-xl text-base leading-relaxed text-ink-muted md:text-lg"
+          >
+            {VENUE.intro}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-wrap items-center justify-center gap-3"
+          >
+            <LinkButton href="#booking" size="lg">
+              Book Your Event
+            </LinkButton>
+            <LinkButton href="#gallery" variant="secondary" size="lg">
+              See the space
+            </LinkButton>
+          </motion.div>
         </motion.div>
-      </motion.div>
+      </div>
 
       {/* Layer 3 — the scroll hint, fades out first. */}
       <motion.div

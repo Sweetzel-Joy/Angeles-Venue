@@ -95,35 +95,32 @@ function AmenityIcon({ name }: { name: AmenityIconName }) {
         <path d="M16 5.5a3 3 0 0 1 0 5.8M17.5 14.4c2.1.8 3.5 2.8 3.5 5.1" />
       </>
     ),
-    area: (
+    hours: (
       <>
-        <rect x="3" y="3" width="18" height="18" rx="1.5" />
-        <path d="M3 9h4V3M21 15h-4v6" />
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 6.8V12l3.6 2.2" />
       </>
     ),
-    parking: (
+    chairs: (
       <>
-        <rect x="3" y="3" width="18" height="18" rx="3" />
-        <path d="M9.5 17V7h3.2a3.1 3.1 0 0 1 0 6.2H9.5" />
+        <path d="M7 4h10l-.9 8H7.9L7 4Z" />
+        <path d="M7.6 12h8.8l.9 4H6.7l.9-4Z" />
+        <path d="M8 16l-.8 4M16 16l.8 4" />
       </>
     ),
-    stage: (
+    wifi: (
       <>
-        <path d="M2 20h20M4 20V9l8-5 8 5v11" />
-        <path d="M9 20v-6h6v6" />
+        <path d="M2.5 8.6a15 15 0 0 1 19 0" />
+        <path d="M5.8 12.3a10 10 0 0 1 12.4 0" />
+        <path d="M9.1 15.9a5 5 0 0 1 5.8 0" />
+        <circle cx="12" cy="19.4" r="1" fill="currentColor" stroke="none" />
       </>
     ),
-    catering: (
+    water: (
       <>
-        <path d="M4 18h16a8 8 0 0 0-16 0Z" />
-        <path d="M2 21h20M12 10V6" />
-        <circle cx="12" cy="4" r="1.2" />
-      </>
-    ),
-    climate: (
-      <>
-        <path d="M12 2v20M4.5 6.5l15 11M19.5 6.5l-15 11" />
-        <path d="M12 6.5 9.5 4M12 6.5 14.5 4M12 17.5 9.5 20M12 17.5l2.5 2.5" />
+        <path d="M9 2.6h6v2.2l-1 1.2h-4l-1-1.2V2.6Z" />
+        <path d="M10 6h4c2.2 1 3.6 3 3.6 5.4v6.4A3.2 3.2 0 0 1 14.4 21H9.6a3.2 3.2 0 0 1-3.2-3.2v-6.4C6.4 9 7.8 7 10 6Z" />
+        <path d="M6.6 14.4c1.6-1.2 3.2-1.2 4.8 0s3.2 1.2 4.8 0" />
       </>
     ),
   };

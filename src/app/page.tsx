@@ -18,8 +18,8 @@ import { Navbar } from '@/components/ui/Navbar';
 const About = dynamic(() =>
   import('@/components/sections/About').then((mod) => mod.About),
 );
-const EventTypes = dynamic(() =>
-  import('@/components/sections/EventTypes').then((mod) => mod.EventTypes),
+const Services = dynamic(() =>
+  import('@/components/sections/Services').then((mod) => mod.Services),
 );
 const Gallery = dynamic(() =>
   import('@/components/sections/Gallery').then((mod) => mod.Gallery),
@@ -48,7 +48,7 @@ export default function HomePage() {
       <main id="main" tabIndex={-1} className="outline-none">
         <Hero />
         <About />
-        <EventTypes />
+        <Services />
         <Gallery />
         <Amenities />
         <Testimonials />

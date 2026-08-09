@@ -58,10 +58,13 @@ Everything the page renders comes from one file:
       Postcode `4108` is the published code for Tanza and was **not** verified
       against the lot; correct it if your mail uses a different one. It feeds
       the JSON-LD that Google reads, not just the visible text.
-- [ ] `VENUE.phone`, `VENUE.email`
+- [x] `VENUE.phone` / `VENUE.contactPerson` — 0915 076 2666, ask for Eva
+- [ ] `VENUE.email` — still `hello@example.com`
 - [ ] `VENUE.siteUrl` — must be the real deployed URL, or Open Graph images and
       canonical links resolve against `example.com`
-- [ ] `VENUE.socials` — real profile URLs, or delete the entries
+- [x] `VENUE.socials` — Facebook only. The Instagram and TikTok entries were
+      removed rather than left pointing at those sites' homepages; add them back
+      when real profiles exist.
 - [ ] `VENUE.mapEmbedUrl` — Google Maps → Share → **Embed a map** → copy the
       `src` value. A normal `maps.google.com/...` link will not render in an
       iframe. Until this is set, the footer shows a visible "not configured"
@@ -69,24 +72,36 @@ Everything the page renders comes from one file:
 
 **Copy**
 - [ ] `ABOUT.heading`, `ABOUT.body`, `ABOUT.stats`
-- [ ] `EVENT_TYPES` — descriptions and highlights for all four
+- [x] `SERVICE_PACKAGES` / `SERVICE_ADDONS` — the real rate card. Replaced the
+      invented Weddings/Corporate/Concerts/Private-Parties cards, which claimed
+      a bridal suite, AV rigging, breakout rooms, a house PA, a green room and a
+      late licence — none of which this venue has.
+
+      > **Prices are deliberately not published.** The venue quotes on enquiry,
+      > so `ServicePackage` has **no price field**. If rates should go on the
+      > site, add the field consciously — do not scatter peso figures into the
+      > inclusion strings.
+
 - [ ] `TESTIMONIALS` — **real, attributable quotes only.** The placeholders say
       "Client name" on purpose. Publishing invented testimonials attributed to
       named people is dishonest and, in many jurisdictions, unlawful.
 
 **Numbers**
-- [ ] `AMENITIES` — every `value` is `0` deliberately. Real figures needed for
-      capacity, floor area, parking, stage width and menu options. They render
-      as "0" until then, which is obviously wrong — that is the point. A
-      plausible-looking invented capacity is the kind of thing that survives to
-      production unnoticed.
+- [x] `AMENITIES` — rebuilt from the rate card: 100 guests, 10 hours, 50 chairs,
+      3 wifi users, 2 gallons of water. The floor-area, parking, stage-width and
+      menu-option tiles were **removed, not filled** — nobody knew those figures
+      and they were still reading 0. The "Air-conditioned — 100%" tile was
+      removed as simply untrue for an open-sided pavilion with electric fans.
+      Add a tile back only when you have the real number.
 
 **Photography**
 - [x] About section — `public/images/about-pavilion.jpg`
 - [x] Gallery — 4 real photos in `public/images/gallery-*.jpg`
-- [ ] Replace the remaining **4** Unsplash placeholders on the event-type cards
-      (weddings, corporate, concerts, private parties) with real venue
-      photography.
+- [x] Hero banner — `public/images/hero-banner.png`
+- [x] **No stock photography remains.** The last four Unsplash images lived on
+      the event-type cards, which are gone. `images.unsplash.com` in
+      `next.config.mjs` is now unused config — harmless, and still there if you
+      ever want a stock image again.
 
 > Two things to keep in step if you add gallery images:
 > `width`/`height` in `content.ts` must be the file's real pixel dimensions

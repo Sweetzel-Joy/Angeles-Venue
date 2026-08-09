@@ -32,13 +32,29 @@ export interface SocialLink {
 
 export type SocialIconName = 'instagram' | 'facebook' | 'tiktok' | 'youtube';
 
-export interface EventType {
+/**
+ * A bookable package.
+ *
+ * Rates are deliberately **not** modelled here. The venue publishes inclusions
+ * on the site and quotes prices on enquiry, so there is no field to put a price
+ * in — which is the point: adding one later should be a conscious decision, not
+ * something that slips in because the shape allowed it.
+ */
+export interface ServicePackage {
   id: string;
-  title: string;
-  description: string;
-  /** Short capability list shown under the description. */
-  highlights: readonly string[];
-  image: VenueImage;
+  name: string;
+  /** One line describing who the package suits. */
+  summary: string;
+  /** Everything included, exactly as the venue lists it. */
+  inclusions: readonly string[];
+}
+
+/** An extra available on request, charged separately. */
+export interface ServiceAddOn {
+  id: string;
+  label: string;
+  /** Qualifier such as "with or without cover". */
+  note?: string;
 }
 
 export interface Amenity {
@@ -56,11 +72,10 @@ export interface Amenity {
 
 export type AmenityIconName =
   | 'guests'
-  | 'area'
-  | 'parking'
-  | 'stage'
-  | 'catering'
-  | 'climate';
+  | 'hours'
+  | 'chairs'
+  | 'wifi'
+  | 'water';
 
 export interface Testimonial {
   id: string;
@@ -89,6 +104,8 @@ export interface VenueDetails {
     country: string;
   };
   phone: string;
+  /** Who to ask for when calling. Shown beside the number. */
+  contactPerson: string;
   email: string;
   /** Absolute URL of the deployed site — required for OG metadata. */
   siteUrl: string;

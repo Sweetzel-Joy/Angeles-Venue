@@ -169,6 +169,12 @@ export function BookingCta() {
                   >
                     {VENUE.phone}
                   </a>
+                  {/* Named contact, so a caller knows who to ask for rather
+                      than opening with "is this the venue?". */}
+                  <span className="text-ink-faint">
+                    {' '}
+                    — ask for {VENUE.contactPerson}
+                  </span>
                 </dd>
               </div>
               <div className="flex flex-col gap-1">

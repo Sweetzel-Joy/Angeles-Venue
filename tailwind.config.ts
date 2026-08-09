@@ -47,6 +47,8 @@ const config: Config = {
       fontFamily: {
         // Wired to next/font CSS variables declared in app/layout.tsx
         display: ['var(--font-display)', 'Georgia', 'serif'],
+        // Brand accent for the venue name. Not a heading face — see layout.tsx.
+        script: ['var(--font-script)', 'cursive'],
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       fontSize: {

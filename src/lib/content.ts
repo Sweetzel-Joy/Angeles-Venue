@@ -14,9 +14,10 @@
 
 import type {
   Amenity,
-  EventType,
   GalleryItem,
   NavLink,
+  ServiceAddOn,
+  ServicePackage,
   Testimonial,
   VenueDetails,
 } from '@/types';
@@ -45,8 +46,8 @@ export const VENUE: VenueDetails = {
     postalCode: '4108',
     country: 'Philippines',
   },
-  // TODO: Replace with the real booking phone number.
-  phone: '+63 000 000 0000',
+  phone: '0915 076 2666',
+  contactPerson: 'Eva',
   // TODO: Replace with the real enquiries email address.
   email: 'hello@example.com',
   // TODO: Replace with the deployed site URL (used for Open Graph metadata).
@@ -54,11 +55,16 @@ export const VENUE: VenueDetails = {
   // TODO: Google Maps → Share → "Embed a map" → copy the src="" value here.
   //       A normal maps.google.com/... link will NOT render inside an iframe.
   mapEmbedUrl: '',
+  // Only accounts that actually exist. The Instagram and TikTok entries that
+  // used to sit here pointed at those sites' homepages — a link that promises a
+  // profile and delivers a dead end is worse than no icon at all. Add them back
+  // when there are real profiles to link to.
   socials: [
-    // TODO: Replace each href with the real profile URL, or delete the entry.
-    { label: 'Instagram', href: 'https://instagram.com/', icon: 'instagram' },
-    { label: 'Facebook', href: 'https://facebook.com/', icon: 'facebook' },
-    { label: 'TikTok', href: 'https://tiktok.com/', icon: 'tiktok' },
+    {
+      label: 'Facebook',
+      href: 'https://www.facebook.com/AngelesVenue',
+      icon: 'facebook',
+    },
   ],
 } as const;
 
@@ -106,70 +112,69 @@ export const ABOUT = {
 } as const;
 
 /* -------------------------------------------------------------------------- */
-/*  Event types                                                               */
+/*  Services — packages and add-ons                                           */
 /* -------------------------------------------------------------------------- */
 
-export const EVENT_TYPES: readonly EventType[] = [
+/**
+ * The venue's real packages, transcribed from its rate card.
+ *
+ * **Rates are deliberately omitted.** The venue quotes on enquiry, so this file
+ * carries inclusions only and the section links to the booking form for prices.
+ * `ServicePackage` has no price field at all, so putting one back is a
+ * deliberate act rather than something that creeps in.
+ *
+ * Setups A and B are titled "Place + Table setup" on the card, so they are
+ * presented as the Place-only package *plus* their extras. Their `inclusions`
+ * list only the extras; the UI states that everything in Place only is included.
+ */
+export const SERVICE_PACKAGES: readonly ServicePackage[] = [
   {
-    id: 'weddings',
-    title: 'Weddings',
-    // TODO: Replace with real copy describing your wedding offering.
-    description:
-      'Ceremony and reception under one roof, with a bridal suite and a team that has run this day hundreds of times.',
-    highlights: ['Ceremony + reception', 'Bridal suite', 'In-house coordination'],
-    image: {
-      // TODO: Replace with a real photograph from a wedding at the venue.
-      src: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&h=1100&q=80',
-      alt: 'Placeholder: a couple standing close together holding a large floral bouquet, backlit by warm sunlight.',
-      width: 900,
-      height: 1100,
-    },
+    id: 'place-only',
+    name: 'Place only',
+    summary: 'The space itself, for a party bringing its own tables and chairs.',
+    inclusions: [
+      'Space that can hold up to 100 people',
+      '10 hours of use, 11am–9pm (flexible based on availability)',
+      'Bluetooth speaker',
+      'Water dispenser with 1 gallon of drinking water (cold only)',
+      'Kitchen and comfort room',
+      'Free wifi (3 users only)',
+    ],
   },
   {
-    id: 'corporate',
-    title: 'Corporate',
-    // TODO: Replace with real copy describing your corporate offering.
-    description:
-      'Conferences, launches and annual parties, with the AV rigging and breakout space to match.',
-    highlights: ['Full AV + rigging', 'Breakout rooms', 'Delegate catering'],
-    image: {
-      // TODO: Replace with a real photograph from a corporate event.
-      src: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=900&h=1100&q=80',
-      alt: 'Placeholder: an audience seated in rows, seen from behind, facing a lit conference stage.',
-      width: 900,
-      height: 1100,
-    },
+    id: 'setup-a',
+    name: 'Place + Table Setup A',
+    summary: 'A smaller gathering, with tables and seating for thirty.',
+    inclusions: [
+      '4 medium or 2 large round tables',
+      '1 long table',
+      '30 monobloc chairs',
+      'Extra gallon of drinking water (2 gallons total)',
+    ],
   },
   {
-    id: 'concerts',
-    title: 'Concerts',
-    // TODO: Replace with real copy describing your live-event offering.
-    description:
-      'A room tuned for live sound, with a load-in bay, house PA and a green room that artists do not complain about.',
-    highlights: ['Tuned house PA', 'Direct load-in', 'Green room'],
-    image: {
-      // TODO: Replace with a real photograph from a live event.
-      src: 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=900&h=1100&q=80',
-      alt: 'Placeholder: a concert crowd silhouetted against orange and magenta stage lighting, one hand raised holding a phone.',
-      width: 900,
-      height: 1100,
-    },
+    id: 'setup-b',
+    name: 'Place + Table Setup B',
+    summary: 'A full function, with covered tables and seating for fifty.',
+    inclusions: [
+      '1 centre chair',
+      '2 medium round tables',
+      '2 long tables with cover',
+      '5 large round tables with cover',
+      '50 monobloc chairs',
+      'Extra gallon of drinking water (2 gallons total)',
+    ],
   },
-  {
-    id: 'private',
-    title: 'Private Parties',
-    // TODO: Replace with real copy describing your private-hire offering.
-    description:
-      'Birthdays, anniversaries and debuts — the whole floor to yourselves, styled to whatever you have in mind.',
-    highlights: ['Exclusive hire', 'Custom styling', 'Late licence'],
-    image: {
-      // TODO: Replace with a real photograph from a private event.
-      src: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=900&h=1100&q=80',
-      alt: 'Placeholder: a cluster of brightly coloured balloons floating against a pale ceiling.',
-      width: 900,
-      height: 1100,
-    },
-  },
+] as const;
+
+/** Extras available on request, charged separately. */
+export const SERVICE_ADDONS: readonly ServiceAddOn[] = [
+  { id: 'large-table', label: 'Large round table', note: 'with cover' },
+  { id: 'medium-table', label: 'Medium round table', note: 'with or without cover' },
+  { id: 'chairs', label: 'Monobloc chairs', note: 'with or without cover' },
+  { id: 'water', label: 'Drinking water', note: 'per gallon' },
+  { id: 'pool', label: 'Portable swimming pool', note: '2 × 4 m' },
+  { id: 'videoke', label: 'Videoke' },
 ] as const;
 
 /* -------------------------------------------------------------------------- */
@@ -177,57 +182,57 @@ export const EVENT_TYPES: readonly EventType[] = [
 /* -------------------------------------------------------------------------- */
 
 /**
- * TODO: Every `value` below is 0 on purpose. Replace each with the real figure.
- * Leaving them at 0 is safe (the counters render "0"); inventing numbers is not.
+ * Every figure here comes off the venue's own rate card.
+ *
+ * The tiles that used to sit here were mine, and most were wrong: floor area,
+ * parking bays, stage width and menu options all still read 0 because nobody
+ * knew them, and "Air-conditioned — 100%" was simply false for an open-sided
+ * pavilion cooled by electric fans. A confident-looking wrong number on a
+ * marketing page is worse than an absent one, so they were removed rather than
+ * guessed at.
+ *
+ * Add a tile back only when you have the real figure for it.
  */
 export const AMENITIES: readonly Amenity[] = [
   {
     id: 'capacity',
-    label: 'Seated guests',
-    value: 0, // TODO: real seated capacity
+    label: 'Guests',
+    value: 100,
     suffix: '',
-    description: 'Banquet-style across the main hall.',
+    description: 'The space can hold up to a hundred people.',
     icon: 'guests',
   },
   {
-    id: 'area',
-    label: 'Floor area',
-    value: 0, // TODO: real floor area
-    suffix: ' sqm',
-    description: 'Column-free, with a 6 m ceiling.',
-    icon: 'area',
-  },
-  {
-    id: 'parking',
-    label: 'Parking bays',
-    value: 0, // TODO: real number of parking bays
+    id: 'hours',
+    label: 'Hours of use',
+    value: 10,
     suffix: '',
-    description: 'On-site and free for your guests.',
-    icon: 'parking',
+    description: '11am to 9pm, flexible based on availability.',
+    icon: 'hours',
   },
   {
-    id: 'stage',
-    label: 'Stage width',
-    value: 0, // TODO: real stage width in metres
-    suffix: ' m',
-    description: 'Modular deck, adjustable height.',
-    icon: 'stage',
-  },
-  {
-    id: 'catering',
-    label: 'Menu options',
-    value: 0, // TODO: real number of catering packages
+    id: 'chairs',
+    label: 'Monobloc chairs',
+    value: 50,
     suffix: '',
-    description: 'In-house kitchen, dietary requirements handled.',
-    icon: 'catering',
+    description: 'Included with Table Setup B; more available on request.',
+    icon: 'chairs',
   },
   {
-    id: 'climate',
-    label: 'Air-conditioned',
-    value: 100,
-    suffix: '%',
-    description: 'Fully climate-controlled year round.',
-    icon: 'climate',
+    id: 'wifi',
+    label: 'Wi-Fi users',
+    value: 3,
+    suffix: '',
+    description: 'Free wifi, three devices at a time.',
+    icon: 'wifi',
+  },
+  {
+    id: 'water',
+    label: 'Gallons of water',
+    value: 2,
+    suffix: '',
+    description: 'With either table setup. Cold drinking water on tap.',
+    icon: 'water',
   },
 ] as const;
 
