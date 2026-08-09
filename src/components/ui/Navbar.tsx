@@ -1,6 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion';
+import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { LinkButton } from './Button';
 import { drawerSlide } from '@/lib/animations';
@@ -107,11 +108,40 @@ export function Navbar() {
           aria-label="Primary"
           className="container-page flex h-[4.5rem] items-center justify-between gap-6"
         >
+          {/*
+            Brand mark and wordmark share a single anchor: one tab stop, one
+            accessible name, one focus ring around both.
+
+            `alt=""` is deliberate. The logo has "ANGELES Venue" drawn inside it
+            and the span beside it says the same words — giving the image alt
+            text as well would make a screen reader announce the venue name
+            twice for one link. The text carries the name; the image is
+            decorative.
+
+            No `mix-blend-multiply` on the white ground here, unlike the hero
+            banner: this bar gains `backdrop-blur-lg` once scrolled, which
+            creates a stacking context and would isolate the blend. `rounded-lg`
+            instead, so the white edge reads as a deliberate mark.
+          */}
           <a
             href="#hero"
-            className="font-display text-xl font-medium tracking-tight text-ink transition-colors hover:text-clay-600"
+            className="group flex items-center gap-2.5 rounded-lg"
           >
-            {VENUE.name}
+            <Image
+              src="/images/logo-watermark.jpg"
+              alt=""
+              width={2048}
+              height={2048}
+              priority
+              // Square source in a square box, so nothing is cropped — the
+              // leaves, lettering and grass all survive. `sizes` keeps
+              // next/image from shipping the 230 KB original for a 36px mark.
+              sizes="40px"
+              className="h-9 w-9 shrink-0 select-none rounded-lg"
+            />
+            <span className="font-display text-xl font-medium tracking-tight text-ink transition-colors group-hover:text-clay-600">
+              {VENUE.name}
+            </span>
           </a>
 
           <ul className="hidden items-center gap-8 md:flex">
