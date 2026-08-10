@@ -55,42 +55,52 @@ export function Gallery() {
           description="A look back at celebrations we've hosted — see how the venue comes to life for different occasions. Select any image to view it full size."
         />
 
-        {feature && (
-          <GalleryTile
-            item={feature}
-            index={0}
-            total={GALLERY.length}
-            prefersReducedMotion={prefersReducedMotion}
-            onOpen={handleOpen}
-            // Full-bleed within the container, so it must not inherit the
-            // two-column `46vw`: the browser would pick a candidate about half
-            // the width it needs and the panorama would render soft.
-            sizes="92vw"
-          />
-        )}
+        {/*
+          The feature and the grid are one group, spaced `gap-4` — the same gap
+          the tiles use between themselves. As direct children of the container
+          they inherited its `gap-14`, which left a 56px trench under the lead
+          image where every other seam in the gallery is 16px. The `gap-14`
+          still separates this group from the heading.
+        */}
+        <div className="flex flex-col gap-4">
+          {feature && (
+            <GalleryTile
+              item={feature}
+              index={0}
+              total={GALLERY.length}
+              prefersReducedMotion={prefersReducedMotion}
+              onOpen={handleOpen}
+              // Full-bleed within the container, so it must not inherit the
+              // two-column `46vw`: the browser would pick a candidate about half
+              // the width it needs and the panorama would render soft.
+              sizes="92vw"
+            />
+          )}
 
-        <div className="flex items-start gap-4">
-          {columns.map((column, columnIndex) => (
-            <div
-              // Column identity is positional; there is no stable id for "the
-              // second column", and the contents re-key themselves below.
-              key={`column-${columnIndex}`}
-              className="flex min-w-0 flex-1 flex-col gap-4"
-            >
-              {column.map((item) => (
-                <GalleryTile
-                  key={item.id}
-                  item={item}
-                  // Index within the *flat* list, so the lightbox pages through
-                  // the gallery in authoring order rather than column order.
-                  index={GALLERY.indexOf(item)}
-                  total={GALLERY.length}
-                  prefersReducedMotion={prefersReducedMotion}
-                  onOpen={handleOpen}
-                />
-              ))}
-            </div>
-          ))}
+          <div className="flex items-start gap-4">
+            {columns.map((column, columnIndex) => (
+              <div
+                // Column identity is positional; there is no stable id for "the
+                // second column", and the contents re-key themselves below.
+                key={`column-${columnIndex}`}
+                className="flex min-w-0 flex-1 flex-col gap-4"
+              >
+                {column.map((item) => (
+                  <GalleryTile
+                    key={item.id}
+                    item={item}
+                    // Index within the *flat* list, so the lightbox pages
+                    // through the gallery in authoring order rather than
+                    // column order.
+                    index={GALLERY.indexOf(item)}
+                    total={GALLERY.length}
+                    prefersReducedMotion={prefersReducedMotion}
+                    onOpen={handleOpen}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

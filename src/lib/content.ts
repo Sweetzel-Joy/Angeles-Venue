@@ -513,7 +513,7 @@ export const TESTIMONIALS: readonly Testimonial[] = [
   {
     id: 't2',
     quote:
-      'From the bottom of our hearts, we would like to thank you for celebrating our marriage with us. To the owner of the wedding venue, sobrang accommodating, sobrang bait, napaka approachable and considerate, ate Eva and to your husband, sobrang thank you. Super duper affordable price at sulit na sulit. Smooth transaction and yes legit na legit.',
+      'To the owner of the wedding venue, sobrang accommodating, sobrang bait, napaka approachable and considerate, ate Eva and to your husband, sobrang thank you. Super duper affordable price at sulit na sulit. Smooth transaction and yes, legit na legit.',
     author: 'Mary Rose',
     context: 'Wedding · February 2024',
   },

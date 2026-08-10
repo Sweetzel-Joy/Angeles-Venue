@@ -104,7 +104,13 @@ export function Testimonials() {
       <LeafDecor variant="stories" />
 
       {/* `relative z-10` keeps the quote and its controls above the decor. */}
-      <div className="container-page relative z-10 flex flex-col gap-14">
+      {/*
+        `gap-8` rather than the `gap-14` the other sections use between their
+        heading and their content. This section opens with a quotation mark
+        rather than a solid block, so the same 56px reads as noticeably more
+        empty space here than it does in Services or the Gallery.
+      */}
+      <div className="container-page relative z-10 flex flex-col gap-8">
         <SectionHeading
           id="stories-heading"
           eyebrow="In their words"
@@ -124,7 +130,23 @@ export function Testimonials() {
           <div
             aria-live="polite"
             aria-atomic="true"
-            className="relative min-h-[19rem] sm:min-h-[16rem]"
+            /*
+              Reserved height for the tallest quote at each breakpoint. The
+              figure inside is `absolute inset-0`, so it does not push this box
+              open — if the reserve is short the quote simply overflows.
+
+              It was short at nearly every width, and not only cosmetically: at
+              360px the caption overflowed 109px past the box and sat on top of
+              the pagination dots, where it swallowed their clicks. Playwright
+              reported the author name "intercepts pointer events" and could not
+              select a testimonial at all.
+
+              The four values are measured, not guessed, with ~20px of headroom:
+              needed 413 / 281 / 296 / 260px at 360 / 640 / 768 / 1024. Note
+              `md` needs MORE than `sm` — the quote steps up to `text-3xl` at
+              768px. Re-measure if the copy or the type scale changes.
+            */
+            className="relative min-h-[27rem] sm:min-h-[19rem] md:min-h-[20rem] lg:min-h-[17.5rem]"
           >
             {/*
               Under reduced motion the slide is rendered WITHOUT
@@ -232,7 +254,18 @@ function QuoteMark() {
   return (
     <span
       aria-hidden="true"
-      className="font-display text-6xl leading-none text-clay-300"
+      /*
+        `-mb-8` is not a nudge to taste — it is measured. At `text-6xl
+        leading-none` the glyph's line box is 60px tall but the ink only
+        occupies rows 11–25, leaving 34px of empty box underneath. Added to the
+        figure's own 24px gap that put 58px of white space between the quotation
+        mark and the first line of the quote. Pulling 32px back leaves about 26.
+
+        A negative margin rather than a smaller `leading`, deliberately: this
+        moves only what follows the glyph. Changing the line height would move
+        the ink itself, back towards the heading above.
+      */
+      className="-mb-8 font-display text-6xl leading-none text-clay-300"
     >
       &ldquo;
     </span>
