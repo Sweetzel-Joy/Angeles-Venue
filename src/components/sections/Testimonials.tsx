@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { LeafDecor } from '@/components/ui/LeafDecor';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { carouselSlide } from '@/lib/animations';
 import { TESTIMONIALS } from '@/lib/content';
@@ -96,9 +97,14 @@ export function Testimonials() {
     <section
       id="stories"
       aria-labelledby="stories-heading"
-      className="relative bg-ivory-100 py-24 md:py-36"
+      // `overflow-hidden` for the botanicals: globals.css clips `section` on
+      // the x-axis only, so bottom-bleeding leaves would spill downward.
+      className="relative overflow-hidden bg-ivory-100 py-24 md:py-36"
     >
-      <div className="container-page flex flex-col gap-14">
+      <LeafDecor variant="stories" />
+
+      {/* `relative z-10` keeps the quote and its controls above the decor. */}
+      <div className="container-page relative z-10 flex flex-col gap-14">
         <SectionHeading
           id="stories-heading"
           eyebrow="In their words"

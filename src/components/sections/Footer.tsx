@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput';
+import { LeafDecor } from '@/components/ui/LeafDecor';
 import { Reveal } from '@/components/ui/Reveal';
 import { NAV_LINKS, VENUE } from '@/lib/content';
 import type { SocialIconName } from '@/types';
@@ -12,8 +13,17 @@ import type { SocialIconName } from '@/types';
  */
 export function Footer() {
   return (
-    <footer className="relative border-t border-ink/10 bg-ivory-100">
-      <div className="container-page grid gap-14 py-20 lg:grid-cols-[1.2fr_1fr_1fr] lg:gap-12">
+    /*
+      `overflow-hidden` is not optional here. The `section { overflow-x: clip }`
+      rule in globals.css that saves the other sections does not match a
+      `<footer>`, so without this the bled-off botanicals would widen the page.
+    */
+    <footer className="relative overflow-hidden border-t border-ink/10 bg-ivory-100">
+      <LeafDecor variant="footer" opacityClassName="opacity-[0.12]" />
+
+      {/* Both of the footer's children need lifting above the decor — doing
+          only this one leaves the copyright bar underneath a leaf. */}
+      <div className="container-page relative z-10 grid gap-14 py-20 lg:grid-cols-[1.2fr_1fr_1fr] lg:gap-12">
         {/* Identity + newsletter */}
         <div className="flex flex-col gap-6">
           <Reveal>
@@ -103,7 +113,7 @@ export function Footer() {
 
       {/* The map lives in the About section now (`About.tsx`), so there is no
           second embed down here. */}
-      <div className="border-t border-ink/10">
+      <div className="relative z-10 border-t border-ink/10">
         <div className="container-page flex flex-col items-start justify-between gap-3 py-6 text-xs text-ink-faint sm:flex-row sm:items-center">
           <p>
             © {new Date().getFullYear()} {VENUE.name}. All rights reserved.

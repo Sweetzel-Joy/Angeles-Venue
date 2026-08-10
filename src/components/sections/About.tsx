@@ -11,49 +11,7 @@ import { fadeInUp, slideInLeft, slideInRight } from '@/lib/animations';
 import { ABOUT, VENUE } from '@/lib/content';
 import { useInViewOnce } from '@/lib/hooks/useInViewOnce';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
-import { cn } from '@/lib/utils';
 import type { GalleryItem } from '@/types';
-
-/**
- * Botanical illustrations scattered behind the section.
- *
- * Local to this file rather than `content.ts`: that file is the one place to
- * edit real venue data, and ornamental art is not venue data.
- *
- * Each is positioned to bleed off a section edge — the section is
- * `overflow-hidden`, so they are clipped rather than widening the page — and
- * placed in whitespace rather than behind the photograph and map, where they
- * would simply be covered.
- *
- * `width`/`height` are the files' real pixels, so `next/image` reserves the
- * right space and nothing shifts as they load.
- */
-const DECOR = [
-  {
-    src: '/images/leaf-outline-tan.png',
-    width: 282,
-    height: 520,
-    className: '-left-16 top-6 w-[190px] -rotate-12 lg:w-[230px]',
-  },
-  {
-    src: '/images/leaf-frond-tan.png',
-    width: 293,
-    height: 520,
-    className: '-left-12 bottom-2 w-[160px] rotate-[8deg] lg:w-[200px]',
-  },
-  {
-    src: '/images/leaf-sprig-sage.png',
-    width: 520,
-    height: 363,
-    className: '-right-14 top-2 w-[220px] rotate-[10deg] lg:w-[280px]',
-  },
-  {
-    src: '/images/leaf-branch-green.png',
-    width: 520,
-    height: 465,
-    className: '-right-16 bottom-0 w-[210px] -rotate-6 lg:w-[260px]',
-  },
-] as const;
 
 /**
  * Split intro section.
@@ -110,35 +68,6 @@ export function About() {
         `items-center` was wrong once the photograph went in: the right column
         grew ~320px taller and the text block floated with ~160px of dead space
         above the eyebrow.
-      */}
-      {/*
-        Decorative botanicals. `aria-hidden` and `pointer-events-none` — they
-        must never be announced, and must never intercept a click meant for the
-        map or a link beneath them.
-
-        Hidden below `md`: the columns stack there into a tall, text-dense
-        block, and a 500px leaf against a 390px viewport is clutter rather than
-        texture.
-      */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden md:block">
-        {DECOR.map((leaf) => (
-          <Image
-            key={leaf.src}
-            src={leaf.src}
-            alt=""
-            width={leaf.width}
-            height={leaf.height}
-            // Faint enough to read as paper texture rather than as objects
-            // competing with the photograph.
-            className={cn('absolute h-auto select-none opacity-[0.15]', leaf.className)}
-          />
-        ))}
-      </div>
-
-      {/*
-        `relative z-10` lifts the content clear of the leaves above. Not
-        `-z-10` on them: this section paints its own `bg-ivory-50`, and a
-        negative index would put the leaves behind that and make them vanish.
       */}
       <div className="container-page relative z-10 grid items-center gap-14 lg:grid-cols-2 lg:items-stretch lg:gap-20">
         {/* Text column */}

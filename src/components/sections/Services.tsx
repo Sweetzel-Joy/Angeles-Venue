@@ -1,6 +1,7 @@
 'use client';
 
 import { LinkButton } from '@/components/ui/Button';
+import { LeafDecor } from '@/components/ui/LeafDecor';
 import { Reveal, RevealGroup, RevealItem } from '@/components/ui/Reveal';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { TiltCard } from '@/components/ui/TiltCard';
@@ -76,9 +77,17 @@ export function Services() {
       // does not move, and nothing is logged.
       id="services"
       aria-labelledby="services-heading"
-      className="relative bg-ivory-100 py-24 md:py-36"
+      // `overflow-hidden` for the botanicals below: globals.css only clips
+      // `section` on the x-axis, so a leaf bleeding off the bottom would spill
+      // into the next section.
+      className="relative overflow-hidden bg-ivory-100 py-24 md:py-36"
     >
-      <div className="container-page flex flex-col gap-14">
+      <LeafDecor variant="services" />
+
+      {/* `relative z-10` keeps the cards above the decor. Not `-z-10` on the
+          leaves: this section paints its own `bg-ivory-100` and would hide
+          them. */}
+      <div className="container-page relative z-10 flex flex-col gap-14">
         <SectionHeading
           id="services-heading"
           eyebrow="What we offer"
