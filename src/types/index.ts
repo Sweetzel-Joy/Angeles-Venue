@@ -69,6 +69,18 @@ export interface GalleryItem {
   id: string;
   image: VenueImage;
   caption: string;
+  /**
+   * Which masonry column this tile belongs to, on the two-column layout only.
+   *
+   * Declaring it turns off the automatic shortest-column balancing for the whole
+   * gallery — see `useMasonryColumns`. That is deliberate: the columns are hand
+   * balanced to finish level, and an algorithm that does not know about that
+   * constraint cannot preserve it. Omit it and placement falls back to the
+   * automatic fill.
+   *
+   * Ignored below 640px, where everything is one column in authoring order.
+   */
+  column?: 0 | 1;
 }
 
 export interface VenueDetails {

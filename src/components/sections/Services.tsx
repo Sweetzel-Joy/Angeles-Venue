@@ -159,12 +159,16 @@ export function Services() {
               'hover:-translate-y-1 hover:shadow-lift',
             )}
           >
-            {/* Weaker than the cards' wash. This block is short, so its
-                gradient reaches the list items rather than fading out above
-                them — the same strength measured under AA on the notes. */}
+            {/* Weaker than the cards' wash (/20, against their /40). The
+                eyebrow sits right at the top edge where the wash is strongest
+                and it is small clay-on-ivory text, so it has the least contrast
+                headroom on the page: /25 measured 4.62:1 hovered, over AA but
+                only just. The block's top is also translucent
+                (`from-sage-200/30`), so a LeafDecor botanical behind it darkens
+                the reading further. */}
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-sage-300/25 from-0% via-transparent via-60% to-transparent opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
+              className="motion-always pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-sage-300/20 from-0% via-transparent via-60% to-transparent opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
             />
 
             <h3 className="eyebrow relative z-10">Also available, charged separately</h3>
@@ -235,7 +239,10 @@ function PackageCard({ servicePackage, buildsOnBase, tone }: PackageCardProps) {
           aria-hidden="true"
           className={cn(
             'pointer-events-none absolute inset-0 rounded-2xl opacity-0',
-            'transition-opacity duration-300 ease-out group-hover:opacity-100',
+            // `motion-always` again: the class marks individual elements, not
+            // subtrees, so the overlay needs its own even though its parent
+            // has one.
+            'motion-always transition-opacity duration-300 ease-out group-hover:opacity-100',
             tone.hoverWash,
           )}
         />

@@ -184,9 +184,10 @@ export const ABOUT = {
  * `alt` is documentation only. The rendered images carry `alt=""` because the
  * layer is decorative and the section already has its own <h1>.
  *
- * The catering slide deliberately **shares its file with the Gallery** rather
- * than duplicating 379 KB. It has its own entry here, so pointing the hero at a
- * different photograph stays a one-line change.
+ * The catering slide used to share `gallery-sixtieth-buffet.jpg` with the
+ * Gallery. The Gallery was replaced wholesale and no longer includes that shot,
+ * so the file was renamed `hero-catering.jpg` — it is the hero's own asset now.
+ * Deleting it with the rest of the old gallery set would have 404'd this slide.
  */
 export const HERO_SLIDES = [
   {
@@ -199,7 +200,7 @@ export const HERO_SLIDES = [
     height: 452,
   },
   {
-    src: '/images/gallery-sixtieth-buffet.jpg',
+    src: '/images/hero-catering.jpg',
     alt: 'Round tables dressed in white linen and chair covers under the covered pavilion, with a green-and-gold balloon arch and the buffet laid out along the bar.',
     width: 3089,
     height: 1356,
@@ -302,46 +303,186 @@ export const SERVICE_ADDONS: readonly ServiceAddOn[] = [
  * `caption` and `alt` are deliberately different: the caption is a short label
  * shown on hover, the alt is the full description for someone who cannot see
  * the photo.
+ *
+ * The first entry is rendered on its own, full width, above the grid (see
+ * `Gallery.tsx`) — it is the section's lead image. Array order is now only the
+ * lightbox paging order; layout is decided by `column`, not by position.
+ *
+ * ---
+ *
+ * **The two columns are hand-balanced to finish level. The numbers below are
+ * load-bearing.**
+ *
+ * A column's height is `Σ(height/width) × columnWidth + (itemCount − 1) × 16px`
+ * — the 16px being `gap-4`. So matching the columns needs the *gap counts*
+ * accounted for too, not just the aspect ratios. With 11 grid tiles the counts
+ * cannot be equal, so the ratio sums are deliberately unequal to cancel the odd
+ * gap out:
+ *
+ *   column 0 — 5 tiles, Σ ratio 4.3523 → 4.3523 × 584 + 4 × 16 = 2605.7px
+ *   column 1 — 6 tiles, Σ ratio 4.3250 → 4.3250 × 584 + 5 × 16 = 2605.7px
+ *
+ * 584px is the column width once the page hits `max-w-content` (80rem). Away
+ * from that the residual is `0.0274 × W − 16`, under ~10px anywhere in the
+ * two-column range, and below 640px there is only one column anyway.
+ *
+ * `gallery-savina-first-birthday.jpg` is the tile that was cropped to make this
+ * come out exact — 2048×1387 gives it the ratio 0.6772 the equation asked for.
+ * **Change any image's dimensions and the columns stop being level.** Solve for
+ * a new ratio rather than eyeballing it; there is a check in
+ * `scratchpad/verify` that measures the rendered columns.
+ *
+ * The gender reveal sitting directly under the pink backdrop is now simply a
+ * matter of both declaring `column: 0` and being adjacent in this array.
+ *
+ * File names describe the setup rather than the child on the backdrop — these
+ * become public URLs.
  */
 export const GALLERY: readonly GalleryItem[] = [
+  // The lead image. A 3.24:1 panorama, which is why it is featured rather than
+  // dropped into a column, where it would render barely 200px tall.
   {
-    id: 'g1',
-    caption: 'Set for a birthday, looking out to the garden',
+    id: 'g-wedding-aisle',
+    caption: 'A wedding, ready for the ceremony',
     image: {
-      src: '/images/gallery-pastel-aisle.jpg',
-      alt: 'Round tables in white damask linen and chair covers line both sides of an aisle running out to the garden, with pastel balloons strung across the roof and a turquoise shade sail beyond.',
+      src: '/images/gallery-wedding-aisle.jpg',
+      alt: 'A wedding set up under the covered pavilion: rows of white-covered chairs either side of a red carpet aisle, tall crystal-hung stands topped with white blossom, and white drapery and floral garlands lining the walls.',
+      width: 2400,
+      height: 740,
+    },
+  },
+  {
+    id: 'g-christmas-party',
+    caption: 'A Christmas party',
+    column: 1,
+    image: {
+      src: '/images/gallery-christmas-party.jpg',
+      alt: 'Children and their teacher gathered for a group photo in front of a Christmas party backdrop, framed by a red, green and gold balloon arch with candy-cane balloons and a decorated tree.',
+      width: 1536,
+      height: 2048,
+    },
+  },
+  {
+    // These two are adjacent and share a column, so the gender reveal renders
+    // directly beneath the pink backdrop. Keep them together if you reorder.
+    id: 'g-my-melody',
+    caption: 'A pink 7th birthday backdrop',
+    column: 0,
+    image: {
+      src: '/images/gallery-my-melody-backdrop.jpg',
+      alt: 'A pink character-themed backdrop with a pastel balloon garland in lilac, yellow and peach around a white bench, a light-up letter and a character standee to one side.',
+      // Cropped from the 1356×3089 original: 236px off the top and 1339px off
+      // the bottom, trimming empty ceiling and most of the table foreground.
+      // Full width is kept — the standee sits close to the right edge and any
+      // horizontal crop clips it.
+      width: 1356,
+      height: 1750,
+    },
+  },
+  {
+    id: 'g-honey-gender-reveal',
+    caption: 'A gender reveal',
+    column: 0,
+    image: {
+      src: '/images/gallery-honey-gender-reveal.jpg',
+      alt: 'A honey-themed gender reveal: a cream arch backdrop reading "A little honey is on the way", with a balloon garland in yellow and caramel, wooden honeycomb shapes and a dessert table of bee-decorated treats.',
+      // Cropped from the 864×1968 original: 260px off the top and 368px off the
+      // bottom. The original is a 1:2.28 portrait and most of that lower third
+      // was bare floor.
+      width: 864,
+      height: 1340,
+    },
+  },
+  {
+    id: 'g-savina-first-birthday',
+    caption: 'A first birthday, with the whole family',
+    column: 1,
+    image: {
+      src: '/images/gallery-savina-first-birthday.jpg',
+      alt: 'A family of thirteen gathered for a group photo in front of a pink sequin backdrop with a silver number one, under a white draped ceiling, with balloon columns either side and balloon letters spelling SAVINA on the grass platform in front.',
+      // Cropped from the 2048×1536 original: 149px off the top, which was tent
+      // ceiling and roof beams. The exact figure is not arbitrary — it gives
+      // this tile the 0.6772 ratio that levels the two columns. See the
+      // docblock above before changing it.
+      width: 2048,
+      height: 1387,
+    },
+  },
+  {
+    id: 'g-christening-pastel',
+    caption: 'A christening under a pastel balloon ceiling',
+    column: 0,
+    image: {
+      src: '/images/gallery-christening-pastel.jpg',
+      alt: 'Clusters of pastel balloons strung across the whole ceiling above round tables in pink, blue and lilac linen, with a sweets-themed backdrop of donuts and cupcakes at the far end.',
+      width: 3089,
+      height: 1356,
+    },
+  },
+  {
+    id: 'g-baptism-rose-hall',
+    caption: 'A baptism, laid out in rose and blush',
+    column: 0,
+    image: {
+      src: '/images/gallery-baptism-rose-hall.jpg',
+      alt: 'Round tables in pale lilac damask linen facing a circular blush backdrop ringed with rose, cream and rose-gold balloons and flowers, with a dessert table and giveaway stand alongside.',
       width: 1968,
       height: 864,
     },
   },
   {
-    id: 'g2',
-    caption: 'The dessert corner',
+    id: 'g-sixtieth-green-gold',
+    caption: 'A 60th, out to the garden',
+    column: 1,
     image: {
-      src: '/images/gallery-pastel-dessert-corner.jpg',
-      alt: 'A dessert table signed "Sweets Corner" against a stone wall, framed by a pink, blue and yellow balloon arch, with set tables in the foreground.',
+      src: '/images/gallery-sixtieth-green-gold.jpg',
+      alt: 'Round tables in white damask linen and chair covers running from the covered pavilion out under a turquoise shade sail to the garden, with a green, white and gold balloon arch over a silver sequin backdrop.',
       width: 3089,
       height: 1356,
     },
   },
   {
-    id: 'g3',
-    caption: 'A 60th, with the buffet laid out',
+    id: 'g-baptism-dessert-bar',
+    caption: 'A baptism laid out with a dessert bar',
+    column: 1,
     image: {
-      src: '/images/gallery-sixtieth-buffet.jpg',
-      alt: 'The pavilion under white draped ceiling fabric, chafing dishes laid along the buffet counter and a green-and-gold balloon arch over a silver sequin backdrop.',
-      width: 3089,
-      height: 1356,
+      src: '/images/gallery-baptism-dessert-bar.jpg',
+      alt: 'A dessert bar laid with cupcakes, cookies and doughnuts on a white table against a stone wall, between a blush balloon garland and a tiered stand of giveaway boxes.',
+      width: 1968,
+      height: 864,
     },
   },
   {
-    id: 'g4',
+    id: 'g-balloon-christening',
     caption: 'A christening, styled in peach and blue',
+    column: 0,
     image: {
-      src: '/images/gallery-hot-air-balloon.jpg',
-      alt: 'A hot-air-balloon themed backdrop in peach and cream at the end of a red carpet aisle, with tables dressed in white and navy chair sashes on either side.',
-      width: 2048,
-      height: 1536,
+      src: '/images/gallery-balloon-christening.jpg',
+      alt: 'A hot-air-balloon themed backdrop in peach and cream at the end of a red carpet aisle, with round tables in white linen and navy chair sashes on either side.',
+      width: 1852,
+      height: 1172,
+    },
+  },
+  {
+    id: 'g-church-service',
+    caption: 'A church service',
+    column: 1,
+    image: {
+      src: '/images/gallery-church-service.jpg',
+      alt: 'A congregation seated on white chairs under the draped ceiling, facing a speaker at a wooden lectern beside a tall wooden cross and a projector screen.',
+      width: 1536,
+      height: 1532,
+    },
+  },
+  {
+    id: 'g-butterfly-first-birthday',
+    caption: 'A first birthday, in a butterfly garden',
+    column: 1,
+    image: {
+      src: '/images/gallery-butterfly-first-birthday.jpg',
+      alt: 'A woodland-and-butterfly backdrop framed by a blue, lilac and yellow balloon arch, with name blocks spelling VERA, a welcome sign on an easel and a rack of party giveaways alongside.',
+      width: 3089,
+      height: 1356,
     },
   },
 ] as const;

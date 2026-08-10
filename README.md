@@ -61,7 +61,7 @@ Everything the page renders comes from one file:
 - [x] `VENUE.phone` — 0976 445 2528, taken from the Google Business listing.
 - [ ] `VENUE.contactPerson` — still "Eva", but the phone number changed after
       that was written and `BookingCta` renders them together as
-      "<phone> — ask for <contactPerson>". Confirm it still holds.
+      "<phone> — look for <contactPerson>". Confirm it still holds.
 - [ ] `VENUE.email` — still `hello@example.com`
 - [ ] `VENUE.siteUrl` — must be the real deployed URL, or Open Graph images and
       canonical links resolve against `example.com`

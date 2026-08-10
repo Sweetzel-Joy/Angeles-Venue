@@ -5,7 +5,8 @@ import { useMediaQuery } from './useMediaQuery';
 import type { GalleryItem } from '@/types';
 
 /**
- * Splits gallery items into balanced columns.
+ * Splits gallery items into columns — hand-assigned if they declare a column,
+ * otherwise balanced automatically.
  *
  * This exists because CSS multi-column cannot be used here. A multicol container
  * *fragments* its children, and Chromium's IntersectionObserver reports
@@ -41,6 +42,29 @@ export function useMasonryColumns(
       { length: columnCount },
       () => [],
     );
+
+    /*
+      Hand-assigned placement wins over balancing, when every item asks for it.
+
+      The automatic fill below optimises for one thing — the shortest column —
+      and the gallery now has constraints it cannot express: the columns are
+      tuned to finish exactly level (which depends on the *item counts* as well
+      as the ratios, because each column carries `n - 1` gaps), and two specific
+      photographs have to sit one above the other. Balancing would undo both.
+
+      All or nothing on purpose. A mix of assigned and balanced items reads as
+      if it should work and quietly does not: the balancer cannot see the
+      assigned tiles' heights, so it fills against a running total that is not
+      the real column height.
+    */
+    if (columnCount > 1 && items.length > 0 && items.every((i) => i.column !== undefined)) {
+      for (const item of items) {
+        // `?? 0` keeps an out-of-range column from dropping the tile silently.
+        columns[Math.min(item.column ?? 0, columnCount - 1)]?.push(item);
+      }
+      return columns;
+    }
+
     // Running height per column, in units of "aspect ratio" — since every
     // column renders at the same width, height is proportional to h/w.
     const heights = new Array<number>(columnCount).fill(0);
