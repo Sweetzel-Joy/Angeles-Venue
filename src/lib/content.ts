@@ -117,16 +117,25 @@ export const ABOUT = {
   heading: 'One Venue, Every Occasion',
   // Real copy, supplied by the venue. `About.tsx` maps over this array, so the
   // number of paragraphs is free — each one gets its own staggered reveal.
-  //
-  // The last line repeats the street address as prose rather than composing it
-  // from `VENUE.address` above, because it also carries the Vista Mall landmark
-  // and its own punctuation. That means it will NOT follow if the address is
-  // corrected up there — change both.
   body: [
     "Angeles Venue is the perfect canvas for your special occasions. Designed to comfortably accommodate up to 100 guests, it offers the ideal setting for life's most meaningful celebrations — weddings, birthdays, baptisms, family reunions, corporate gatherings, and so much more.",
     "Every event deserves a space that reflects your vision. Whatever look you're going for — simple and intimate, rustic and charming, glamorous and elegant, or fun and playful — our venue serves as your blank canvas, ready to transform into the celebration space you've always imagined. From the décor to the ambiance, we help bring your theme to life so every detail feels uniquely yours.",
-    '📍 Conveniently located at P1B-P4 B85 L2, Carissa Homes, Bagtas, Tanza, Cavite — just a few minutes away from Vista Mall Tanza',
   ],
+  /*
+    Rendered in the right-hand column directly above the map, not as a third
+    body paragraph — it belongs with the thing it describes.
+
+    Its own field rather than `body[2]`: About.tsx maps over `body`, so a named
+    key keeps that mapping honest and nothing has to index the array by
+    position.
+
+    It spells the street address out as prose rather than composing it from
+    `VENUE.address`, because it also carries the Vista Mall landmark and its own
+    punctuation — so it will NOT follow if the address is corrected up there.
+    Change both.
+  */
+  location:
+    '📍 Conveniently located at P1B-P4 B85 L2, Carissa Homes, Bagtas, Tanza, Cavite — just a few minutes away from Vista Mall Tanza',
   // Capacity and hours lead: they are the two facts someone weighing a booking
   // checks first. Both moved here when the Venue section was removed.
   stats: [

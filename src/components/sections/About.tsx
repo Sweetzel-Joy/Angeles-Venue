@@ -3,10 +3,12 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import { useRef } from 'react';
+import { Counter } from '@/components/ui/Counter';
 import { Reveal } from '@/components/ui/Reveal';
 import { TiltCard } from '@/components/ui/TiltCard';
 import { fadeInUp, slideInLeft, slideInRight } from '@/lib/animations';
 import { ABOUT, VENUE } from '@/lib/content';
+import { useInViewOnce } from '@/lib/hooks/useInViewOnce';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 
 /**
@@ -19,6 +21,9 @@ import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
+  // Gates the stat counters. `useInViewOnce` disconnects after the first hit,
+  // so the numbers count once and never re-run on scroll-back.
+  const [statsRef, statsInView] = useInViewOnce<HTMLDListElement>({ threshold: 0.4 });
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -63,12 +68,20 @@ export function About() {
           ))}
 
           <Reveal variants={fadeInUp} delay={0.32}>
-            <dl className="mt-4 flex flex-wrap gap-10 border-t border-ink/10 pt-8">
+            {/*
+              One observer for the whole list, passed down to every Counter, so
+              the four numbers start together. Four separate observers would
+              fire at slightly different moments and the row would stagger.
+            */}
+            <dl
+              ref={statsRef}
+              className="mt-4 flex flex-wrap gap-10 border-t border-ink/10 pt-8"
+            >
               {ABOUT.stats.map((stat) => (
                 <div key={stat.label} className="flex flex-col gap-1">
                   <dt className="order-2 text-sm text-ink-faint">{stat.label}</dt>
                   <dd className="order-1 font-display text-4xl font-light text-clay-600">
-                    {stat.value}
+                    <Counter value={stat.value} start={statsInView} />
                   </dd>
                 </div>
               ))}
@@ -76,9 +89,14 @@ export function About() {
           </Reveal>
         </div>
 
-        {/* Map column — falls back to the venue photograph, see below */}
+        {/* Location + map column — the map falls back to the venue photograph */}
         <Reveal variants={slideInRight} amount={0.15}>
-          <motion.div style={{ y: imageY }} className="will-animate">
+          {/* The address sits inside the same parallax wrapper as the map, so
+              the two travel together rather than drifting apart on scroll. */}
+          <motion.div style={{ y: imageY }} className="flex flex-col gap-5 will-animate">
+            <p className="text-base leading-relaxed text-ink-muted">
+              {ABOUT.location}
+            </p>
             {VENUE.mapEmbedUrl ? <LocationMap /> : <VenuePhoto />}
           </motion.div>
         </Reveal>
