@@ -113,6 +113,51 @@ export const ABOUT = {
 } as const;
 
 /* -------------------------------------------------------------------------- */
+/*  Hero wallpaper slideshow                                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Photographs that cycle behind the hero.
+ *
+ * **Array order is display order** — wedding, then catering, then guest room.
+ *
+ * These are rendered at roughly 18% opacity over `ivory-100`, so they read as a
+ * wash rather than a photograph. That is not a stylistic accident: the AV
+ * monogram is a light-ground mark in sage and taupe, and the hero copy is dark.
+ * A full-strength photo behind either would need a reversed logo and white type.
+ *
+ * `alt` is documentation only. The rendered images carry `alt=""` because the
+ * layer is decorative and the section already has its own <h1>.
+ *
+ * The catering slide deliberately **shares its file with the Gallery** rather
+ * than duplicating 379 KB. It has its own entry here, so pointing the hero at a
+ * different photograph stays a one-line change.
+ */
+export const HERO_SLIDES = [
+  {
+    src: '/images/hero-wedding.jpg',
+    alt: 'A wedding aisle set with a red carpet, white draping, crystal-hung flower stands and a floral arch at the altar.',
+    // Lower resolution than the other two — see README. At this opacity the
+    // upscaling is not visible; swapping in a larger file needs only these
+    // numbers changed.
+    width: 1080,
+    height: 452,
+  },
+  {
+    src: '/images/gallery-sixtieth-buffet.jpg',
+    alt: 'Round tables dressed in white linen and chair covers under the covered pavilion, with a green-and-gold balloon arch and the buffet laid out along the bar.',
+    width: 3089,
+    height: 1356,
+  },
+  {
+    src: '/images/hero-guest-room.jpg',
+    alt: 'The guest room, with a single bed, a day bed, a shelving unit and a sofa.',
+    width: 3089,
+    height: 1356,
+  },
+] as const;
+
+/* -------------------------------------------------------------------------- */
 /*  Services — packages and add-ons                                           */
 /* -------------------------------------------------------------------------- */
 

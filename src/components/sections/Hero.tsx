@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import { useRef } from 'react';
 import { LinkButton } from '@/components/ui/Button';
+import { HeroSlideshow } from '@/components/ui/HeroSlideshow';
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator';
 import { VENUE } from '@/lib/content';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
@@ -11,8 +12,8 @@ import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 /**
  * Full-viewport hero.
  *
- * Deliberately empty behind the mark: no background image, no gradient, no 3D.
- * The logo is the whole composition, so it gets the whole stage.
+ * Behind the mark, three venue photographs cycle at 60% opacity — see
+ * `HeroSlideshow`. Everything above them keeps its light-ground styling.
  *
  * Two layers still move as the section scrolls away — the content block and the
  * scroll hint, at different rates, so the section departs with a bit of depth
@@ -47,13 +48,18 @@ export function Hero() {
       // `bg-ivory-100` matches Services (Services.tsx). It also gives the hero
       // a boundary against About below it, which is `ivory-50` — the two were
       // previously the same shade and ran together with no seam.
-      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ivory-100"
+      // `group` drives the slideshow chevrons, which stay hidden until the hero
+      // is hovered. `bg-ivory-100` matches Services (Services.tsx) and is the
+      // ground the wallpaper photographs wash over; it also gives the hero a
+      // boundary against About below it, which is `ivory-50`.
+      className="group relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ivory-100"
     >
-      {/*
-        No background layer and no contrast scrims. The logo below sits in the
-        content flow on plain ivory, so there is nothing for a scrim to protect.
-      */}
-      <div className="container-page flex flex-col items-center gap-8 text-center">
+      <HeroSlideshow />
+
+      {/* `relative z-10` lifts the content clear of the wallpaper layer. Safe
+          to add now — the `mix-blend-mode` that once forbade stacking contexts
+          in this subtree went with the old banner. */}
+      <div className="container-page relative z-10 flex flex-col items-center gap-8 text-center">
         <motion.div
           style={{ y: contentY, opacity: contentOpacity }}
           className="flex flex-col items-center gap-8 will-animate"
@@ -104,10 +110,20 @@ export function Hero() {
             />
           </motion.div>
 
-          {/* Intro and address are grouped so they read as one block. The
-              parent's `gap-8` would otherwise put 2rem between them, which
-              reads as two unrelated statements rather than a line and its
-              location. */}
+          {/*
+            Intro and address are grouped so they read as one block. The
+            parent's `gap-8` would otherwise put 2rem between them, which reads
+            as two unrelated statements rather than a line and its location.
+
+            **Known, deliberate accessibility trade-off.** Both lines are
+            `text-ink-muted` (#6B6155) over photographs at 60% opacity, which
+            puts them below the 4.5:1 WCAG AA floor for body text on some
+            frames — the measured figures are in the README. This was chosen
+            over the alternatives (a contrast scrim, or darkening these two
+            lines to `text-ink`) so the venue photography reads clearly. It is a
+            decision, not an oversight; the route back is changing
+            `text-ink-muted` to `text-ink` on these two elements.
+          */}
           <div className="flex flex-col items-center gap-3">
             <motion.p
               initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}

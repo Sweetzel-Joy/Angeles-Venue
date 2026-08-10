@@ -236,6 +236,66 @@ rather than being sized for a desktop window and swamping a phone screen.
 - Every animation respects `prefers-reduced-motion`, with a CSS backstop in
   `globals.css` for anything added later that forgets to check.
 
+### The hero wallpaper slideshow
+
+`src/components/ui/HeroSlideshow.tsx`, driven by `HERO_SLIDES` in `content.ts`
+(array order **is** display order: wedding → catering → guest room).
+
+- **Photos run at 80%**, with no contrast scrim. The nesting does the work — the
+  wrapper is held at `0.8` and the active slide at `1`, so the crossfade happens
+  inside that level.
+
+  > ### ⚠️ Known accessibility trade-off, chosen deliberately
+  >
+  > At 80% the hero copy sits on photography, and `text-ink-muted` (#6B6155)
+  > falls **well below** the 4.5:1 WCAG AA floor for body text. Measured on the
+  > built page:
+  >
+  > | Slide | Intro | Address |
+  > |---|---|---|
+  > | Wedding | 1.01:1 | 1.18:1 |
+  > | Catering | 2.37:1 | 2.27:1 |
+  > | Guest room | 1.57:1 | 1.57:1 |
+  >
+  > For reference: 5.37:1 on plain ivory, and 5.0–5.3:1 with the ivory scrim
+  > that used to sit between the photos and the content. At 1.01:1 the text and
+  > its background are the same luminance — that line is not merely hard to
+  > read, it is invisible where it crosses the aisle runner.
+  >
+  > This was an explicit product decision to let the venue photography read
+  > clearly, taken over the alternatives. **Do not "fix" it by reintroducing a
+  > scrim or lowering the opacity** without checking first — that would reverse
+  > the decision, not repair a bug.
+  >
+  > Routes back, cheapest first: change `text-ink-muted` → `text-ink` on the
+  > intro and address in `Hero.tsx`; add a text shadow; or restore a scrim.
+  > **The hero copy is not the only thing affected.** The navbar links and the
+  > scroll hint are also `text-ink-muted` over this section's transparent bar,
+  > and were measured at **1.33–2.75:1** and **1.07–2.94:1** respectively. The
+  > navbar is site navigation rather than hero decoration, so it is worth
+  > deciding on separately — the fix there is the navbar's own colour, or giving
+  > the bar a translucent ground while it sits over the hero.
+  >
+  > `scratchpad/verify/hero-slideshow.mjs` re-measures these and prints them on
+  > every run. It reports rather than asserts, so the numbers stay visible
+  > without a permanent red failure.
+- **Pause listeners are on the `<section>`, not on the slideshow wrapper.** The
+  hero content is a *sibling* of the wallpaper layer and paints on top of it, so
+  React handlers on the wrapper looked right and did almost nothing — the
+  pointer crossing the logo never entered it and the timer kept running.
+- **Chevrons show on hover, on keyboard focus, and always on coarse pointers.**
+  Hover alone strands keyboard and touch users, who cannot produce one. They
+  also live *outside* the `aria-hidden` layer; inside it they would vanish from
+  assistive tech while staying on screen.
+- Auto-advance is disabled entirely under `prefers-reduced-motion`; the chevrons
+  still work, so nothing becomes unreachable.
+- The catering slide **shares its file with the Gallery** rather than
+  duplicating 379 KB. It has its own `HERO_SLIDES` entry, so repointing it is a
+  one-line change.
+- `hero-wedding.jpg` is 1080×452 — lower resolution than the other two
+  (3089×1356) and upscaled at desktop widths. Invisible at this opacity; drop in
+  a larger file at the same path and update `width`/`height` in `content.ts`.
+
 ### The preloader
 
 `src/components/ui/Preloader.tsx`, mounted in `layout.tsx`. Three constraints,
