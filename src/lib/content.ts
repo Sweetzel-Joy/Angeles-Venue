@@ -86,10 +86,17 @@ export const ABOUT = {
   eyebrow: 'The Place',
   // TODO: Replace with a real headline for the about section.
   heading: 'One Venue, Every Occasion',
-  // TODO: Replace both paragraphs with real copy about the venue.
+  // Real copy, supplied by the venue. `About.tsx` maps over this array, so the
+  // number of paragraphs is free — each one gets its own staggered reveal.
+  //
+  // The last line repeats the street address as prose rather than composing it
+  // from `VENUE.address` above, because it also carries the Vista Mall landmark
+  // and its own punctuation. That means it will NOT follow if the address is
+  // corrected up there — change both.
   body: [
-    'Angeles venue offers a place for your special occassions. It can accommodate 100pax.',
-    'Use the second paragraph for what the space means in practice: how it adapts between event types, what the team handles for you, and why planners come back.',
+    "Angeles Venue is the perfect canvas for your special occasions. Designed to comfortably accommodate up to 100 guests, it offers the ideal setting for life's most meaningful celebrations — weddings, birthdays, baptisms, family reunions, corporate gatherings, and so much more.",
+    "Every event deserves a space that reflects your vision. Whatever look you're going for — simple and intimate, rustic and charming, glamorous and elegant, or fun and playful — our venue serves as your blank canvas, ready to transform into the celebration space you've always imagined. From the décor to the ambiance, we help bring your theme to life so every detail feels uniquely yours.",
+    '📍 Conveniently located at P1B-P4 B85 L2, Carissa Homes, Bagtas, Tanza, Cavite — just a few minutes away from Vista Mall Tanza',
   ],
   // Capacity and hours lead: they are the two facts someone weighing a booking
   // checks first. Both moved here when the Venue section was removed.
@@ -121,10 +128,10 @@ export const ABOUT = {
  *
  * **Array order is display order** — wedding, then catering, then guest room.
  *
- * These are rendered at roughly 18% opacity over `ivory-100`, so they read as a
- * wash rather than a photograph. That is not a stylistic accident: the AV
- * monogram is a light-ground mark in sage and taupe, and the hero copy is dark.
- * A full-strength photo behind either would need a reversed logo and white type.
+ * Rendered at 60% opacity over `ivory-100`, and they cycle every 3 seconds —
+ * see `HeroSlideshow.tsx`. The hero copy is white with a glyph shadow and the
+ * monogram sits on its own halo, because at this strength both would otherwise
+ * be lost in the photograph. The README carries the measured figures.
  *
  * `alt` is documentation only. The rendered images carry `alt=""` because the
  * layer is decorative and the section already has its own <h1>.
