@@ -156,11 +156,15 @@ export const ABOUT = {
     // `remotePatterns` entry in next.config.mjs — that is only for remote hosts.
     src: '/images/about-covered-pavilion.jpg',
     alt: 'The covered event area: a wide open floor under a red-framed roof with a green shade canopy and string lights, a stone-clad bar counter carrying the Angeles Venue sign, stacked tables and chairs to one side, and greenery along the open edges.',
-    // True dimensions of the file. 1.773:1, so the `aspect-[16/9]` frame in
-    // About.tsx crops almost nothing.
+    // True dimensions of the file. 1.773:1, so the `aspect-[2/1]` frame in
+    // About.tsx crops a little off the top and bottom.
     width: 2048,
     height: 1155,
   },
+  // Shown under the photograph when it is opened full size. Deliberately short
+  // — `image.alt` is a full description, which is right for alt text and far
+  // too long to sit as a caption.
+  imageCaption: 'The covered event area',
 } as const;
 
 /* -------------------------------------------------------------------------- */

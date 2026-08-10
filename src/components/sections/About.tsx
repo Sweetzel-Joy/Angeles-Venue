@@ -2,8 +2,9 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Counter } from '@/components/ui/Counter';
+import { Lightbox } from '@/components/ui/Lightbox';
 import { Reveal } from '@/components/ui/Reveal';
 import { TiltCard } from '@/components/ui/TiltCard';
 import { fadeInUp, slideInLeft, slideInRight } from '@/lib/animations';
@@ -11,6 +12,7 @@ import { ABOUT, VENUE } from '@/lib/content';
 import { useInViewOnce } from '@/lib/hooks/useInViewOnce';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/utils';
+import type { GalleryItem } from '@/types';
 
 /**
  * Botanical illustrations scattered behind the section.
@@ -66,6 +68,18 @@ export function About() {
   // Gates the stat counters. `useInViewOnce` disconnects after the first hit,
   // so the numbers count once and never re-run on scroll-back.
   const [statsRef, statsInView] = useInViewOnce<HTMLDListElement>({ threshold: 0.4 });
+
+  /*
+    Full-size viewer for the photograph, reusing the Gallery's `Lightbox` — it
+    already handles the focus trap, focus restoration to the trigger, Escape,
+    and the background scroll lock. A one-entry list: the component hides its
+    paging controls when there is nothing to page to.
+  */
+  const [photoOpen, setPhotoOpen] = useState<number | null>(null);
+  const photoItems = useMemo<GalleryItem[]>(
+    () => [{ id: 'about-photo', image: ABOUT.image, caption: ABOUT.imageCaption }],
+    [],
+  );
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -192,7 +206,7 @@ export function About() {
               {ABOUT.location}
             </p>
 
-            <VenuePhoto />
+            <VenuePhoto onOpen={() => setPhotoOpen(0)} />
 
             {/* The map is the only optional part of this column — the photo
                 above already guarantees it is never an empty rectangle, which
@@ -201,6 +215,14 @@ export function About() {
           </motion.div>
         </Reveal>
       </div>
+
+      {/* Portals to <body>, so the section's `overflow-hidden` cannot clip it. */}
+      <Lightbox
+        items={photoItems}
+        index={photoOpen}
+        onClose={() => setPhotoOpen(null)}
+        onNavigate={setPhotoOpen}
+      />
     </section>
   );
 }
@@ -256,13 +278,24 @@ function LocationMap() {
  * It shares the map's rounded, shadowed card deliberately: the two stack as one
  * object in the column.
  */
-function VenuePhoto() {
+function VenuePhoto({ onOpen }: { onOpen: () => void }) {
   return (
     <TiltCard maxTilt={8} lift={16} className="rounded-3xl">
       <figure className="relative aspect-[2/1] overflow-hidden rounded-3xl bg-ivory-200 shadow-lift">
+        {/*
+          The button carries the description, so the image inside takes
+          `alt=""` — a non-empty alt here would announce the same text twice for
+          one control. Same convention as the gallery tiles (Gallery.tsx).
+        */}
+        <button
+          type="button"
+          onClick={onOpen}
+          aria-label={`View photo full size: ${ABOUT.image.alt}`}
+          className="absolute inset-0 z-10 cursor-zoom-in rounded-3xl"
+        />
         <Image
           src={ABOUT.image.src}
-          alt={ABOUT.image.alt}
+          alt=""
           fill
           sizes="(max-width: 1024px) 92vw, 45vw"
           className="object-cover"

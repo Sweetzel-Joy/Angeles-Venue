@@ -37,6 +37,8 @@ export function Lightbox({ items, index, onClose, onNavigate }: LightboxProps) {
 
   const isOpen = index !== null;
   const item = isOpen ? items[index] : undefined;
+  /** Paging UI and the position counter only make sense for a set. */
+  const hasMany = items.length > 1;
 
   const goNext = useCallback(() => {
     if (index === null || items.length === 0) return;
@@ -143,13 +145,23 @@ export function Lightbox({ items, index, onClose, onNavigate }: LightboxProps) {
           exit="exit"
           role="dialog"
           aria-modal="true"
-          aria-label={`Gallery image ${index + 1} of ${items.length}: ${item.caption}`}
+          /*
+            Not "Gallery image …". This viewer is shared — the About section
+            opens it for a single photograph — and naming it after one caller
+            misdescribes it for the other. The position is only announced when
+            there is a set to be positioned within; "1 of 1" is noise.
+          */
+          aria-label={
+            hasMany
+              ? `Image ${index + 1} of ${items.length}: ${item.caption}`
+              : `Image: ${item.caption}`
+          }
         >
           {/* Backdrop. Presentational — the real close affordances are the
               button and Escape, both reachable without a pointer. */}
           <button
             type="button"
-            aria-label="Close gallery"
+            aria-label="Close image viewer"
             tabIndex={-1}
             onClick={onClose}
             className="absolute inset-0 cursor-zoom-out bg-ink/80 backdrop-blur-sm"
@@ -175,19 +187,31 @@ export function Lightbox({ items, index, onClose, onNavigate }: LightboxProps) {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <p className="text-sm text-ivory-100">
                 {item.caption}
-                <span className="ml-3 text-ivory-100/60">
-                  {index + 1} / {items.length}
-                </span>
+                {/* Only meaningful with a set to count through. */}
+                {hasMany && (
+                  <span className="ml-3 text-ivory-100/60">
+                    {index + 1} / {items.length}
+                  </span>
+                )}
               </p>
 
               <div className="flex items-center gap-2">
-                <LightboxControl label="Previous image" onClick={goPrevious}>
-                  <ArrowIcon direction="left" />
-                </LightboxControl>
-                <LightboxControl label="Next image" onClick={goNext}>
-                  <ArrowIcon direction="right" />
-                </LightboxControl>
-                <LightboxControl label="Close gallery" onClick={onClose} ref={closeButtonRef}>
+                {/*
+                  Paging controls appear only for a set. With a single image
+                  they would step from it back to itself — affordances that look
+                  real and do nothing.
+                */}
+                {hasMany && (
+                  <>
+                    <LightboxControl label="Previous image" onClick={goPrevious}>
+                      <ArrowIcon direction="left" />
+                    </LightboxControl>
+                    <LightboxControl label="Next image" onClick={goNext}>
+                      <ArrowIcon direction="right" />
+                    </LightboxControl>
+                  </>
+                )}
+                <LightboxControl label="Close image viewer" onClick={onClose} ref={closeButtonRef}>
                   <CloseIcon />
                 </LightboxControl>
               </div>
