@@ -7,8 +7,28 @@ import { carouselSlide } from '@/lib/animations';
 import { TESTIMONIALS } from '@/lib/content';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/utils';
+import type { Testimonial } from '@/types';
 
 const ADVANCE_INTERVAL = 7000;
+
+/** Quote, author and context. Shared so the animated and reduced-motion
+ *  branches below cannot drift apart. */
+function TestimonialBody({ testimonial }: { testimonial: Testimonial }) {
+  return (
+    <>
+      <QuoteMark />
+      <blockquote className="font-display text-2xl font-light leading-snug text-ink md:text-3xl">
+        {testimonial.quote}
+      </blockquote>
+      <figcaption className="flex flex-col gap-1">
+        <span className="text-sm font-medium text-ink">{testimonial.author}</span>
+        <span className="text-xs uppercase tracking-wider text-ink-faint">
+          {testimonial.context}
+        </span>
+      </figcaption>
+    </>
+  );
+}
 
 /**
  * Auto-advancing testimonial carousel.
@@ -16,11 +36,18 @@ const ADVANCE_INTERVAL = 7000;
  * The auto-advance is the accessibility-sensitive part. A carousel that keeps
  * moving while you are reading is hostile, so it pauses on:
  *
- *  - hover (pointer users)
+ *  - hover (pointer users) — scoped to the quote block, not the section: if the
+ *    pointer is on the quote you are reading it, and pausing is right. Do not
+ *    widen this to the `<section>`; on a full-height section that pauses
+ *    permanently, which is exactly how the hero slideshow got stuck.
  *  - **focus within** (keyboard users — easy to forget, and without it the slide
  *    can change out from under someone who has just tabbed to a control)
- *  - `prefers-reduced-motion` (never auto-advances at all)
  *  - tab hidden (no point animating in a background tab)
+ *
+ * It **does** auto-advance under `prefers-reduced-motion`, by decision — the
+ * quote swaps with no travel and no animation at all (see the render below).
+ * It previously froze on the first quote for those visitors, which meant the
+ * other testimonials were simply never seen. Same call as the hero slideshow.
  *
  * The slide region is an `aria-live="polite"` container so screen-reader users
  * are told when the quote changes, rather than silently reading stale content.
@@ -48,7 +75,7 @@ export function Testimonials() {
   }, []);
 
   useEffect(() => {
-    if (prefersReducedMotion || isPaused || total <= 1) return;
+    if (isPaused || total <= 1) return;
 
     const tick = () => {
       // `document.hidden` guards against a backgrounded tab queuing up dozens
@@ -60,7 +87,7 @@ export function Testimonials() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [paginate, isPaused, prefersReducedMotion, total]);
+  }, [paginate, isPaused, total]);
 
   const active = TESTIMONIALS[index];
   if (!active) return null;
@@ -93,37 +120,50 @@ export function Testimonials() {
             aria-atomic="true"
             className="relative min-h-[19rem] sm:min-h-[16rem]"
           >
-            <AnimatePresence mode="wait" custom={direction} initial={false}>
-              <motion.figure
+            {/*
+              Under reduced motion the slide is rendered WITHOUT
+              `AnimatePresence`, not merely with gentler variants.
+
+              `AnimatePresence` only unmounts the outgoing node once its exit
+              animation reports completion. With reduced motion that completion
+              never arrives: in `mode="wait"` the carousel froze at
+              `opacity: 0` while the pagination dots kept advancing behind it,
+              and in `mode="sync"` the stale figures piled up instead — one,
+              then two, then three, all invisible. Both measured. Swapping the
+              node outright has no exit animation to wait on, so it cannot
+              deadlock. The quote still changes; only the movement is gone.
+            */}
+            {prefersReducedMotion ? (
+              <figure
                 key={active.id}
-                custom={direction}
-                variants={carouselSlide}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                // Drag to swipe. `dragElastic` gives the rubber-band feel; the
-                // 80px offset threshold stops a stray tap from paginating.
-                drag={prefersReducedMotion ? false : 'x'}
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.18}
-                onDragEnd={(_, info) => {
-                  if (info.offset.x < -80) paginate(1);
-                  else if (info.offset.x > 80) paginate(-1);
-                }}
-                className="absolute inset-0 flex cursor-grab flex-col items-center gap-6 text-center active:cursor-grabbing will-animate"
+                className="absolute inset-0 flex flex-col items-center gap-6 text-center"
               >
-                <QuoteMark />
-                <blockquote className="font-display text-2xl font-light leading-snug text-ink md:text-3xl">
-                  {active.quote}
-                </blockquote>
-                <figcaption className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-ink">{active.author}</span>
-                  <span className="text-xs uppercase tracking-wider text-ink-faint">
-                    {active.context}
-                  </span>
-                </figcaption>
-              </motion.figure>
-            </AnimatePresence>
+                <TestimonialBody testimonial={active} />
+              </figure>
+            ) : (
+              <AnimatePresence mode="wait" custom={direction} initial={false}>
+                <motion.figure
+                  key={active.id}
+                  custom={direction}
+                  variants={carouselSlide}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  // Drag to swipe. `dragElastic` gives the rubber-band feel; the
+                  // 80px offset threshold stops a stray tap from paginating.
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.18}
+                  onDragEnd={(_, info) => {
+                    if (info.offset.x < -80) paginate(1);
+                    else if (info.offset.x > 80) paginate(-1);
+                  }}
+                  className="absolute inset-0 flex cursor-grab flex-col items-center gap-6 text-center active:cursor-grabbing will-animate"
+                >
+                  <TestimonialBody testimonial={active} />
+                </motion.figure>
+              </AnimatePresence>
+            )}
           </div>
 
           {/* Controls */}

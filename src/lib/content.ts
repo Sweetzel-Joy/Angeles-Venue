@@ -303,31 +303,37 @@ export const GALLERY: readonly GalleryItem[] = [
 /* -------------------------------------------------------------------------- */
 
 /**
- * TODO: Replace all of these with real, attributable testimonials.
- * Do not publish invented quotes attributed to named people — beyond being
- * dishonest, fabricated reviews are unlawful in many jurisdictions.
+ * Real testimonials from real clients, supplied by the venue.
+ *
+ * Reproduced as written apart from clear transcription typos ("celebreating",
+ * "marrage", "owener", "leigit") and stray spaces before punctuation. No word,
+ * phrase or bit of Taglish has been changed, tidied or made more formal — these
+ * are attributed to named people, so the voice is theirs, not ours.
+ *
+ * Anything added here must be a genuine, attributable quote. Fabricated reviews
+ * attributed to named people are dishonest and, in many jurisdictions, unlawful.
  */
 export const TESTIMONIALS: readonly Testimonial[] = [
   {
     id: 't1',
     quote:
-      'Replace this with a real quote from a real client, kept to two or three sentences so it stays readable inside the carousel.',
-    author: 'Client name',
-    context: 'Event type · Month Year',
+      'Malinis at maluwag ang lugar, tsaka madaling kausap sina ate at kuya pag may request kami, nag-aadjust sila. Highly recommended po ang place na to.',
+    author: 'Sweetzel',
+    context: '1st Birthday · February 2025',
   },
   {
     id: 't2',
     quote:
-      'A second real testimonial goes here. Quotes that mention a specific detail — the coordination, the timing, the food — land better than general praise.',
-    author: 'Client name',
-    context: 'Event type · Month Year',
+      'From the bottom of our hearts, we would like to thank you for celebrating our marriage with us. To the owner of the wedding venue, sobrang accommodating, sobrang bait, napaka approachable and considerate, ate Eva and to your husband, sobrang thank you. Super duper affordable price at sulit na sulit. Smooth transaction and yes legit na legit.',
+    author: 'Mary Rose',
+    context: 'Wedding · February 2024',
   },
   {
     id: 't3',
     quote:
-      'A third real testimonial goes here. Three is the minimum for the carousel to feel alive; five or six is better.',
-    author: 'Client name',
-    context: 'Event type · Month Year',
+      'Thank you po sa service nyo samin. Happy that I found a place po na budget friendly pero maayos, maaliwalas, naging maganda din po yung venue.',
+    author: 'Althea',
+    context: 'Christening · January 2024',
   },
 ] as const;
 
