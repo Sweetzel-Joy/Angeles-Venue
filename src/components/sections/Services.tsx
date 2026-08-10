@@ -28,6 +28,20 @@ import type { ServicePackage } from '@/types';
  */
 interface CardTone {
   surface: string;
+  /**
+   * The extra wash faded in on hover, painted as an overlay on top of
+   * `surface` rather than replacing it.
+   *
+   * Deliberately not `hover:from-sage-300` on the card itself: that changes
+   * `--tw-gradient-from`, an unregistered custom property, which CSS cannot
+   * interpolate — the colour would jump instead of fading. Animating an
+   * overlay's `opacity` interpolates properly.
+   *
+   * These strengths were set by measuring painted contrast with the hover held,
+   * not by eye — see point 2 above. Raising them is the easy way to push the
+   * summary text back under 4.5:1.
+   */
+  hoverWash: string;
   border: string;
   bullet: string;
   label: string;
@@ -37,6 +51,8 @@ const CARD_TONES: readonly CardTone[] = [
   {
     surface:
       'bg-gradient-to-b from-sage-200/70 from-0% via-ivory-50 via-45% to-ivory-50',
+    hoverWash:
+      'bg-gradient-to-b from-sage-300/40 from-0% via-transparent via-45% to-transparent',
     border: 'border-sage-300/50',
     bullet: 'bg-sage-400',
     label: 'text-sage-800',
@@ -44,6 +60,8 @@ const CARD_TONES: readonly CardTone[] = [
   {
     surface:
       'bg-gradient-to-b from-clay-200/75 from-0% via-ivory-50 via-45% to-ivory-50',
+    hoverWash:
+      'bg-gradient-to-b from-clay-300/40 from-0% via-transparent via-45% to-transparent',
     border: 'border-clay-300/45',
     bullet: 'bg-clay-400',
     label: 'text-clay-700',
@@ -51,6 +69,16 @@ const CARD_TONES: readonly CardTone[] = [
   {
     surface:
       'bg-gradient-to-b from-sage-400/60 from-0% via-ivory-50 via-45% to-ivory-50',
+    // Lighter than the other two on purpose: this tone's resting surface is
+    // already the darkest (`sage-400/60`), so a /35 wash took the summary text
+    // to 4.57:1 — over AA by 0.07, which is no margin at all.
+    //
+    // `/20`, not `/22`: opacity modifiers must be steps Tailwind actually
+    // generates. `/22` is not one, and it did not fail loudly — it compiled to
+    // `rgba(154, 174, 138, 0.6)`, nearly three times the intended strength, and
+    // pushed the text down to 4.33:1. Same trap as the docblock above.
+    hoverWash:
+      'bg-gradient-to-b from-sage-400/20 from-0% via-transparent via-45% to-transparent',
     border: 'border-sage-400/50',
     bullet: 'bg-sage-600',
     label: 'text-sage-800',
@@ -119,9 +147,28 @@ export function Services() {
             these are line items, not packages, and giving them equal visual
             weight would bury the three things people actually choose between. */}
         <Reveal variants={fadeInUp}>
-          <div className="rounded-2xl border border-sage-300/35 bg-gradient-to-b from-sage-200/30 via-ivory-50 to-ivory-50 p-6 shadow-soft sm:p-8">
-            <h3 className="eyebrow">Also available, charged separately</h3>
-            <ul className="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Same hover treatment as the package cards above — see PackageCard
+              for why the tint is an overlay and why `motion-always` is needed.
+              A gentler lift, because this is a wide, shallow block: the 6px the
+              cards use reads as a jolt at this aspect ratio. */}
+          <div
+            className={cn(
+              'group relative rounded-2xl border border-sage-300/35 p-6 shadow-soft sm:p-8',
+              'bg-gradient-to-b from-sage-200/30 via-ivory-50 to-ivory-50',
+              'motion-always transition-[transform,box-shadow] duration-300 ease-out',
+              'hover:-translate-y-1 hover:shadow-lift',
+            )}
+          >
+            {/* Weaker than the cards' wash. This block is short, so its
+                gradient reaches the list items rather than fading out above
+                them — the same strength measured under AA on the notes. */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-sage-300/25 from-0% via-transparent via-60% to-transparent opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
+            />
+
+            <h3 className="eyebrow relative z-10">Also available, charged separately</h3>
+            <ul className="relative z-10 mt-5 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
               {SERVICE_ADDONS.map((addOn) => (
                 <li
                   key={addOn.id}
@@ -146,7 +193,7 @@ export function Services() {
         {/* Prices are not published, so the route to them has to be obvious. */}
         <Reveal variants={fadeInUp} className="flex flex-col items-center gap-4">
           <p className="text-center text-base text-ink-muted">
-            Rates are quoted per booking, based on your date and setup.
+            Rates depends on your setup — every booking gets a custom quote.
           </p>
           <LinkButton href="#booking" size="lg">
             Ask for a quote
@@ -168,12 +215,32 @@ function PackageCard({ servicePackage, buildsOnBase, tone }: PackageCardProps) {
     <TiltCard maxTilt={7} lift={16} className="h-full rounded-2xl">
       <article
         className={cn(
-          'flex h-full flex-col gap-5 rounded-2xl border p-6 shadow-soft sm:p-7',
+          'group relative flex h-full flex-col gap-5 rounded-2xl border p-6 shadow-soft sm:p-7',
+          // `motion-always` (globals.css) exempts these transitions from the
+          // global reduced-motion backstop, which would otherwise collapse them
+          // to 0.01ms and make the hover snap. The tilt from TiltCard stays
+          // disabled under reduced motion — a 3D rotation is the part that
+          // actually provokes motion sickness; a lift and a shadow are not.
+          'motion-always transition-[transform,box-shadow] duration-300 ease-out',
+          'hover:-translate-y-1.5 hover:shadow-lift',
           tone.surface,
           tone.border,
         )}
       >
-        <header className="flex flex-col gap-2">
+        {/* The hover tint. Sits behind the content by way of the `relative
+            z-10` on the two blocks below — positioned elements paint above
+            static siblings regardless of source order, so without those this
+            would wash over the text rather than under it. */}
+        <span
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute inset-0 rounded-2xl opacity-0',
+            'transition-opacity duration-300 ease-out group-hover:opacity-100',
+            tone.hoverWash,
+          )}
+        />
+
+        <header className="relative z-10 flex flex-col gap-2">
           <h3 className="font-display text-2xl font-light text-ink">
             {servicePackage.name}
           </h3>
@@ -182,7 +249,7 @@ function PackageCard({ servicePackage, buildsOnBase, tone }: PackageCardProps) {
           </p>
         </header>
 
-        <div className="flex flex-1 flex-col gap-3 border-t border-ink/10 pt-5">
+        <div className="relative z-10 flex flex-1 flex-col gap-3 border-t border-ink/10 pt-5">
           {buildsOnBase && (
             <p
               className={cn(

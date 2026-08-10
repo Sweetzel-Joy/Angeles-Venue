@@ -231,4 +231,23 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /*
+    Deliberate exception to the blanket rule above.
+
+    An element marked `.motion-always` keeps its transitions under reduced
+    motion. Reserved for pointer-driven feedback the visitor initiates
+    themselves — a card responding to their own hover — never for anything that
+    moves on its own. Without it the rule above collapses the transition to
+    0.01ms and the change snaps rather than eases, which is the one thing a
+    before/after test cannot see.
+
+    `!important` plus a class selector is what it takes to win: both
+    declarations are important, so specificity decides, and `.motion-always`
+    (0,1,0) beats `*` (0,0,0).
+  */
+  .motion-always,
+  .motion-always * {
+    transition-duration: 300ms !important;
+  }
 }
