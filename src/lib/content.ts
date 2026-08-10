@@ -45,15 +45,44 @@ export const VENUE: VenueDetails = {
     postalCode: '4108',
     country: 'Philippines',
   },
-  phone: '0915 076 2666',
+  // Taken from the venue's Google Business listing. The `tel:` links in
+  // Footer.tsx and BookingCta.tsx strip the spaces themselves.
+  phone: '0976 445 2528',
+  // TODO: Confirm this still holds for the number above — BookingCta renders
+  // "<phone> — ask for <contactPerson>", and the number changed after this was
+  // written.
   contactPerson: 'Eva',
   // TODO: Replace with the real enquiries email address.
   email: 'hello@example.com',
   // TODO: Replace with the deployed site URL (used for Open Graph metadata).
   siteUrl: 'https://example.com',
-  // TODO: Google Maps → Share → "Embed a map" → copy the src="" value here.
-  //       A normal maps.google.com/... link will NOT render inside an iframe.
-  mapEmbedUrl: '',
+  /*
+    Drives the map in the About section (`About.tsx`). Blank it and that section
+    falls back to the venue photograph rather than showing an empty frame.
+
+    Three parts of this URL are load-bearing:
+
+      cid=4637974674607620998
+        The venue's Google place ID, decoded from the `data=!1s0x…:0x…` blob in
+        its Maps URL — the second hex value, 0x405d6564bd3ec386, as decimal.
+        This is what makes the marker resolve to the real *listing*: the pin is
+        labelled "Angeles Venue", the info card shows the business and its
+        address, and clicking through opens that listing. A plain lat/lng `q=`
+        gives an unnamed pin at a coordinate instead.
+
+      t=k
+        Satellite imagery. Measured against the road map: mean brightness drops
+        from 234 to ~120 and green cover rises from 0.9% to ~17%. `t=h` renders
+        identically here — Google already draws street and place labels over the
+        imagery, so there is no separate "hybrid" worth choosing.
+
+      output=embed
+        Long-standing but NOT a documented Google API, so it carries no
+        compatibility promise. The supported alternative is Maps → Share →
+        "Embed a map" (`.../maps/embed?pb=…`), which cannot preset satellite.
+  */
+  mapEmbedUrl:
+    'https://maps.google.com/maps?cid=4637974674607620998&z=18&hl=en&t=k&output=embed',
   // Only accounts that actually exist. The Instagram and TikTok entries that
   // used to sit here pointed at those sites' homepages — a link that promises a
   // profile and delivers a dead end is worse than no icon at all. Add them back

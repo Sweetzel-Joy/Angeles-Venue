@@ -101,8 +101,8 @@ export function Footer() {
         </Reveal>
       </div>
 
-      <MapEmbed />
-
+      {/* The map lives in the About section now (`About.tsx`), so there is no
+          second embed down here. */}
       <div className="border-t border-ink/10">
         <div className="container-page flex flex-col items-start justify-between gap-3 py-6 text-xs text-ink-faint sm:flex-row sm:items-center">
           <p>
@@ -161,41 +161,6 @@ function NewsletterForm() {
         {message}
       </p>
     </form>
-  );
-}
-
-/**
- * Google Maps embed.
- *
- * `loading="lazy"` matters more here than anywhere else on the page — a Maps
- * iframe pulls in a large amount of third-party JavaScript, and it sits at the
- * very bottom where most visitors never reach it.
- */
-function MapEmbed() {
-  if (!VENUE.mapEmbedUrl) {
-    return (
-      <div className="border-t border-ink/10 bg-ivory-200/50">
-        <div className="container-page py-10 text-center text-sm text-ink-faint">
-          {/* Visible rather than an empty gap, so the missing config is obvious
-              during development instead of silently shipping as blank space. */}
-          Map not configured — add <code className="font-mono">mapEmbedUrl</code> in{' '}
-          <code className="font-mono">src/lib/content.ts</code>.
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="border-t border-ink/10">
-      <iframe
-        src={VENUE.mapEmbedUrl}
-        title={`Map showing the location of ${VENUE.name}`}
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        className="h-[380px] w-full border-0 grayscale-[0.25]"
-        allowFullScreen
-      />
-    </div>
   );
 }
 

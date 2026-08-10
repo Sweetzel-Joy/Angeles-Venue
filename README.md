@@ -58,17 +58,41 @@ Everything the page renders comes from one file:
       Postcode `4108` is the published code for Tanza and was **not** verified
       against the lot; correct it if your mail uses a different one. It feeds
       the JSON-LD that Google reads, not just the visible text.
-- [x] `VENUE.phone` / `VENUE.contactPerson` — 0915 076 2666, ask for Eva
+- [x] `VENUE.phone` — 0976 445 2528, taken from the Google Business listing.
+- [ ] `VENUE.contactPerson` — still "Eva", but the phone number changed after
+      that was written and `BookingCta` renders them together as
+      "<phone> — ask for <contactPerson>". Confirm it still holds.
 - [ ] `VENUE.email` — still `hello@example.com`
 - [ ] `VENUE.siteUrl` — must be the real deployed URL, or Open Graph images and
       canonical links resolve against `example.com`
 - [x] `VENUE.socials` — Facebook only. The Instagram and TikTok entries were
       removed rather than left pointing at those sites' homepages; add them back
       when real profiles exist.
-- [ ] `VENUE.mapEmbedUrl` — Google Maps → Share → **Embed a map** → copy the
-      `src` value. A normal `maps.google.com/...` link will not render in an
-      iframe. Until this is set, the footer shows a visible "not configured"
-      notice rather than a blank gap.
+- [x] `VENUE.mapEmbedUrl` — drives the map in the **About** section
+      (`About.tsx`); the footer no longer has a map. Three parts of the URL are
+      load-bearing and documented inline in `content.ts`:
+
+      - `cid=4637974674607620998` — the venue's Google place ID, decoded from
+        the `data=!1s0x…:0x…` blob in its Maps URL (second hex value as
+        decimal). This is what labels the pin "Angeles Venue", shows the
+        business info card, and makes **clicking through open the real listing**
+        instead of a bare coordinate.
+      - `t=k` — satellite imagery. Measured: mean brightness 234 → ~120, green
+        cover 0.9% → ~17% versus the road map. `t=h` is identical here.
+      - `output=embed` — long-standing but **not** a documented Google API, so
+        no compatibility promise. The supported alternative
+        (Maps → Share → Embed a map, `.../maps/embed?pb=…`) cannot preset
+        satellite, which is why it is not used.
+
+      > Blank this and About falls back to `ABOUT.image` rather than rendering
+      > an empty frame — so the section is never a blank box.
+      >
+      > The map branch deliberately skips `TiltCard` and the warm gradient
+      > overlay. The tilt fights panning, and the gradient is `absolute inset-0`
+      > over the iframe, which swallows every click and drag: the map would look
+      > right and be completely dead. There is a check for this in
+      > `scratchpad/verify` that asserts `elementFromPoint` at the centre of the
+      > frame returns the `IFRAME`.
 
 **Copy**
 - [ ] `ABOUT.heading`, `ABOUT.body`, `ABOUT.stats`

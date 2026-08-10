@@ -6,7 +6,7 @@ import { useRef } from 'react';
 import { Reveal } from '@/components/ui/Reveal';
 import { TiltCard } from '@/components/ui/TiltCard';
 import { fadeInUp, slideInLeft, slideInRight } from '@/lib/animations';
-import { ABOUT } from '@/lib/content';
+import { ABOUT, VENUE } from '@/lib/content';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 
 /**
@@ -76,40 +76,76 @@ export function About() {
           </Reveal>
         </div>
 
-        {/* Image column */}
+        {/* Map column — falls back to the venue photograph, see below */}
         <Reveal variants={slideInRight} amount={0.15}>
           <motion.div style={{ y: imageY }} className="will-animate">
-            <TiltCard maxTilt={8} lift={16} className="rounded-3xl">
-              {/*
-                The frame sets the crop, not the file. The source photograph is
-                a 2.28:1 panorama; shown at its own ratio it would be a thin
-                strip beside the tall text column, and cropped to the previous
-                portrait frame it lost about 80% of its width — including the
-                balloon arch and the garden. A 4:3 frame keeps the middle ~58%,
-                which is where the composition actually lives.
-
-                `aspect-[4/3]` + `fill` + `object-cover` mirrors the pattern in
-                EventTypes.tsx rather than introducing a second way to crop.
-              */}
-              <figure className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-ivory-200 shadow-lift">
-                <Image
-                  src={ABOUT.image.src}
-                  alt={ABOUT.image.alt}
-                  fill
-                  sizes="(max-width: 1024px) 92vw, 45vw"
-                  className="object-cover"
-                />
-                {/* Warm gradient so the ivory page and the photo meet softly
-                    rather than at a hard rectangular edge. */}
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-clay-700/25 via-transparent to-transparent"
-                />
-              </figure>
-            </TiltCard>
+            {VENUE.mapEmbedUrl ? <LocationMap /> : <VenuePhoto />}
           </motion.div>
         </Reveal>
       </div>
     </section>
+  );
+}
+
+/**
+ * Embedded Google Map of the venue, in the same frame the photograph used.
+ *
+ * Two things this deliberately does NOT do, both of which look harmless and
+ * quietly break the map:
+ *
+ *  - **No `TiltCard`.** It rotates the card toward the pointer. On a map, the
+ *    pointer movement that pans would also tilt the frame, and hit-testing
+ *    through a 3D transform is unreliable. The frame keeps the same radius,
+ *    ratio and shadow — just not the tilt.
+ *  - **No gradient overlay.** The photograph's warm gradient is
+ *    `absolute inset-0`. Over an iframe it swallows every click, drag and
+ *    scroll: the map would look perfect and be completely dead.
+ */
+function LocationMap() {
+  return (
+    <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-ivory-200 shadow-lift">
+      <iframe
+        src={VENUE.mapEmbedUrl}
+        title={`Map showing the location of ${VENUE.name}`}
+        // Defers the third-party request until the visitor scrolls near it,
+        // rather than loading Google's scripts and cookies on first paint.
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        allowFullScreen
+        className="absolute inset-0 h-full w-full border-0"
+      />
+    </div>
+  );
+}
+
+/**
+ * Fallback when `mapEmbedUrl` is blank, so this column can never render as an
+ * empty rectangle.
+ *
+ * The frame sets the crop, not the file. The source photograph is a 2.28:1
+ * panorama; shown at its own ratio it would be a thin strip beside the tall
+ * text column, and cropped to a portrait frame it lost about 80% of its width —
+ * including the balloon arch and the garden. A 4:3 frame keeps the middle ~58%,
+ * which is where the composition actually lives.
+ */
+function VenuePhoto() {
+  return (
+    <TiltCard maxTilt={8} lift={16} className="rounded-3xl">
+      <figure className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-ivory-200 shadow-lift">
+        <Image
+          src={ABOUT.image.src}
+          alt={ABOUT.image.alt}
+          fill
+          sizes="(max-width: 1024px) 92vw, 45vw"
+          className="object-cover"
+        />
+        {/* Warm gradient so the ivory page and the photo meet softly rather
+            than at a hard rectangular edge. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-t from-clay-700/25 via-transparent to-transparent"
+        />
+      </figure>
+    </TiltCard>
   );
 }
