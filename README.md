@@ -241,44 +241,75 @@ rather than being sized for a desktop window and swamping a phone screen.
 `src/components/ui/HeroSlideshow.tsx`, driven by `HERO_SLIDES` in `content.ts`
 (array order **is** display order: wedding → catering → guest room).
 
-- **Photos run at 80%**, with no contrast scrim. The nesting does the work — the
-  wrapper is held at `0.8` and the active slide at `1`, so the crossfade happens
+- **Photos run at 60%**, with no contrast scrim. The nesting does the work — the
+  wrapper is held at `0.6` and the active slide at `1`, so the crossfade happens
   inside that level.
+
+- **A dark band sits behind the navbar while it floats over the hero**
+  (`from-ink/50` fading out over 96px, against a 72px bar so there is no hard
+  edge). It is a *child* of the header with `opacity-0` when solid, not a
+  background on the header itself — `background-image` cannot transition, so a
+  gradient on the header would snap on and off. The `<nav>` needs `relative` or
+  the band paints over the links it exists to help. White link contrast went
+  from 1.83–3.05:1 to **3.21–4.88:1**.
+
+- **`.logo-glow` sits behind the monogram.** Its tone is measured, not chosen:
+  the mark holds three ink families that want opposite grounds — sage
+  `rgb(107,160,135)` (3.00:1 light / 4.95:1 dark), taupe `rgb(146,125,112)`
+  (3.90 / 3.81) and "EVENTS PLACE" `rgb(45,45,45)` (13.77 / **1.08**). A dark
+  halo would make the big sage pop and erase "EVENTS PLACE" outright, so the
+  halo is light. Measured result: the ground under every ink family is
+  rgb(246–250) on **all three slides** — the real goal being consistency, since
+  without it each part of the mark sits on a patch of photograph that changes
+  every three seconds.
+
+  > The sage reads 2.73–2.83:1 and **cannot do better on any light ground** —
+  > 3.00:1 against pure white is its ceiling. It is a large graphical mark and
+  > logotypes are exempt from WCAG contrast minimums. Do not chase 3:1 here.
+
+  > Measuring this needs `#hero img[src*="logo-monogram"]`, **not** `#hero img`
+  > — the wallpaper layer precedes the content in the DOM, so the generic
+  > selector matches a full-viewport slide and silently reports nonsense.
+
+- **Hero copy, the navbar and the scroll hint are white**, with the
+  `.text-on-photo` glyph shadow. The navbar is white **only while transparent**
+  — `isSolid` switches it back to `text-ink`/`text-ink-muted`, because white
+  links on the scrolled bar's `bg-ivory-50/85` would be invisible. That
+  conditional is load-bearing; a single static colour breaks one state or the
+  other.
 
   > ### ⚠️ Known accessibility trade-off, chosen deliberately
   >
-  > At 80% the hero copy sits on photography, and `text-ink-muted` (#6B6155)
-  > falls **well below** the 4.5:1 WCAG AA floor for body text. Measured on the
-  > built page:
+  > White copy on 60% photography still falls short of the 4.5:1 WCAG AA floor
+  > for body text. Measured on the built page:
   >
-  > | Slide | Intro | Address |
+  > | Slide | Intro (mean / worst) | Address (mean / worst) |
   > |---|---|---|
-  > | Wedding | 1.01:1 | 1.18:1 |
-  > | Catering | 2.37:1 | 2.27:1 |
-  > | Guest room | 1.57:1 | 1.57:1 |
+  > | Wedding | 3.67:1 / 2.39:1 | 4.10:1 / 2.56:1 |
+  > | Catering | 2.03:1 / 1.44:1 | 2.11:1 / 1.28:1 |
+  > | Guest room | 2.70:1 / 1.76:1 | 2.69:1 / 1.79:1 |
   >
-  > For reference: 5.37:1 on plain ivory, and 5.0–5.3:1 with the ivory scrim
-  > that used to sit between the photos and the content. At 1.01:1 the text and
-  > its background are the same luminance — that line is not merely hard to
-  > read, it is invisible where it crosses the aisle runner.
+  > "Worst" is the **brightest** 5% of pixels behind each line. That tail is the
+  > right one for *white* text and the wrong one for dark text — the slides are
+  > mostly white drapes, linens and walls, so white disappears into highlights
+  > exactly where the previous grey disappeared into shadows. For reference:
+  > 5.37:1 on plain ivory, 5.0–5.3:1 with the ivory scrim that used to sit
+  > between the photos and the content.
   >
-  > This was an explicit product decision to let the venue photography read
-  > clearly, taken over the alternatives. **Do not "fix" it by reintroducing a
-  > scrim or lowering the opacity** without checking first — that would reverse
-  > the decision, not repair a bug.
+  > These numbers **do not credit `.text-on-photo`**. Sampling the background
+  > requires hiding the text, which hides its shadow too — and WCAG does not
+  > credit text-shadow either. Perceptually the shadow does most of the work; on
+  > the figures alone the copy is still under AA.
   >
-  > Routes back, cheapest first: change `text-ink-muted` → `text-ink` on the
-  > intro and address in `Hero.tsx`; add a text shadow; or restore a scrim.
-  > **The hero copy is not the only thing affected.** The navbar links and the
-  > scroll hint are also `text-ink-muted` over this section's transparent bar,
-  > and were measured at **1.33–2.75:1** and **1.07–2.94:1** respectively. The
-  > navbar is site navigation rather than hero decoration, so it is worth
-  > deciding on separately — the fix there is the navbar's own colour, or giving
-  > the bar a translucent ground while it sits over the hero.
+  > This is an explicit product decision to let the venue photography read
+  > clearly. **Do not "fix" it by reintroducing a scrim or lowering the
+  > opacity** without checking first — that reverses a decision rather than
+  > repairing a bug.
   >
-  > `scratchpad/verify/hero-slideshow.mjs` re-measures these and prints them on
-  > every run. It reports rather than asserts, so the numbers stay visible
-  > without a permanent red failure.
+  > `scratchpad/verify/hero-slideshow.mjs` re-measures on every run, reading the
+  > element's *computed* colour and picking the harder tail for it, so the
+  > figures stay honest if the copy colour changes again. It reports rather than
+  > asserts, so nothing sits permanently red.
 - **Pause listeners are on the `<section>`, not on the slideshow wrapper.** The
   hero content is a *sibling* of the wallpaper layer and paints on top of it, so
   React handlers on the wrapper looked right and did almost nothing — the

@@ -90,6 +90,58 @@
     @apply font-sans text-xs font-medium uppercase tracking-eyebrow text-clay-600;
   }
 
+  /*
+    White type sitting directly on the hero photographs.
+
+    White alone is not enough here. All three slides are predominantly *light* —
+    white drapes, white linens, white walls — so plain white text disappears
+    into them in exactly the places dark text disappeared into the shadows. This
+    shadow is painted on the glyphs, not as an overlay on the photograph, so the
+    image itself is untouched.
+
+    Two stops: a tight one for edge definition and a wide soft one that darkens
+    the immediate surround, which is what keeps the text readable when it
+    crosses a bright drape.
+  */
+  .text-on-photo {
+    text-shadow:
+      0 1px 2px rgba(43, 39, 33, 0.55),
+      0 2px 14px rgba(43, 39, 33, 0.45);
+  }
+
+  /*
+    Halo behind the hero monogram.
+
+    Light, and that is measured rather than chosen. The mark holds three ink
+    families that want opposite grounds:
+
+      sage "AV"        rgb(107,160,135)   3.00:1 on light   4.95:1 on dark
+      taupe script     rgb(146,125,112)   3.90:1 on light   3.81:1 on dark
+      "EVENTS PLACE"   rgb(45,45,45)     13.77:1 on light   1.08:1 on dark
+
+    A dark halo would make the big sage monogram pop hardest and erase
+    "EVENTS PLACE" outright. Light keeps every element at or above 3:1, which is
+    also the WCAG threshold for graphical objects.
+
+    Its real job is consistency: without it each part of the mark sits on a
+    random patch of photograph that changes every three seconds.
+
+    Measured result: the ground under every ink family lands at rgb(246-250) on
+    all three slides — effectively ivory, and identical frame to frame, which is
+    the point. The sage then sits at 2.75-2.85:1, its ceiling on any light
+    ground (3.00:1 against pure white); it is a large graphical mark, and
+    logotypes are exempt from WCAG contrast minimums.
+  */
+  .logo-glow {
+    background: radial-gradient(
+      closest-side,
+      rgba(253, 251, 247, 0.96) 0%,
+      rgba(253, 251, 247, 0.94) 72%,
+      rgba(253, 251, 247, 0.5) 88%,
+      rgba(253, 251, 247, 0) 100%
+    );
+  }
+
   /* Fallback painted behind every Canvas: approximates the scene's average
      colour so the swap-in is a settle, not a flash. */
   .scene-fallback {

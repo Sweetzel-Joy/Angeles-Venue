@@ -104,9 +104,36 @@ export function Navbar() {
             : 'border-b border-transparent bg-transparent',
         )}
       >
+        {/*
+          Soft dark band behind the bar while it floats over the hero
+          photographs, so the white nav type has a consistent ground instead of
+          whatever the slide happens to be showing.
+
+          Three things about the shape of this:
+
+           - It is a **child**, not a background on the header. `background-image`
+             is not animatable, so a gradient on the header itself would snap on
+             and off as the bar changes state; opacity on a child cross-fades.
+           - `h-24` against a 72px bar, so the fade finishes *below* the bar and
+             there is no hard edge where the band stops.
+           - `opacity-0` once solid — the scrolled bar is already ivory and must
+             not be darkened.
+        */}
+        <div
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-ink/50 to-transparent',
+            'transition-opacity duration-500',
+            isSolid ? 'opacity-0' : 'opacity-100',
+          )}
+        />
+
         <nav
           aria-label="Primary"
-          className="container-page flex h-[4.5rem] items-center justify-between gap-6"
+          // `relative` so the links paint above the band. Positioned elements
+          // paint over non-positioned siblings, so without this the scrim would
+          // cover the very type it exists to help.
+          className="container-page relative flex h-[4.5rem] items-center justify-between gap-6"
         >
           {/*
             Brand mark and wordmark share a single anchor: one tab stop, one
@@ -144,7 +171,14 @@ export function Navbar() {
               sizes="40px"
               className="h-9 w-9 shrink-0 select-none rounded-lg"
             />
-            <span className="font-display text-xl font-medium tracking-tight text-ink transition-colors group-hover:text-clay-600">
+            <span
+              className={cn(
+                'font-display text-xl font-medium tracking-tight transition-colors',
+                isSolid
+                  ? 'text-ink group-hover:text-clay-600'
+                  : 'text-on-photo text-white group-hover:text-clay-200',
+              )}
+            >
               {VENUE.name}
             </span>
           </a>
@@ -152,9 +186,20 @@ export function Navbar() {
           <ul className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
+                {/*
+                  White over the hero photographs, dark once the bar turns solid
+                  ivory. The state matters: white links on the scrolled bar's
+                  `bg-ivory-50/85` would be effectively invisible, so this cannot
+                  be a single static colour.
+                */}
                 <a
                   href={link.href}
-                  className="group relative py-1 text-sm text-ink-muted transition-colors duration-200 hover:text-ink"
+                  className={cn(
+                    'group relative py-1 text-sm transition-colors duration-200',
+                    isSolid
+                      ? 'text-ink-muted hover:text-ink'
+                      : 'text-on-photo text-white hover:text-clay-200',
+                  )}
                 >
                   {link.label}
                   {/* Underline grows from the left on hover/focus. A scaled
@@ -180,7 +225,12 @@ export function Navbar() {
               aria-expanded={isDrawerOpen}
               aria-controls="mobile-nav"
               aria-label={isDrawerOpen ? 'Close menu' : 'Open menu'}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink transition-colors hover:border-ink/35 md:hidden"
+              className={cn(
+                'flex h-10 w-10 items-center justify-center rounded-full border transition-colors md:hidden',
+                isSolid
+                  ? 'border-ink/15 text-ink hover:border-ink/35'
+                  : 'border-white/50 text-white hover:border-white/80',
+              )}
             >
               <MenuIcon open={isDrawerOpen} />
             </button>

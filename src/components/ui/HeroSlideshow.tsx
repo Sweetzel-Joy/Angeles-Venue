@@ -1,9 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { HERO_SLIDES } from '@/lib/content';
-import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/utils';
 
 /** How long each slide holds before the next one crossfades in. */
@@ -23,18 +22,22 @@ const INTERVAL_MS = 3000;
  *    are **outside** it — they are real controls, and burying them in an
  *    `aria-hidden` subtree would remove them from assistive tech entirely while
  *    still leaving them on screen.
- *  - Auto-advance stops entirely under `prefers-reduced-motion`. A background
- *    that rotates on a timer is precisely the sort of unrequested motion that
- *    setting exists to switch off; the chevrons still work, so nothing becomes
- *    unreachable.
+ *  - **The pause is scoped to the chevrons, never to the section.** It briefly
+ *    lived on the `<section>`, which sounds harmless and was not: the hero is
+ *    `min-h-[100svh]`, so the section *is* the viewport, and a cursor resting
+ *    anywhere on the page froze the carousel permanently. Measured — the slide
+ *    index sat at `1` for fifteen seconds. Do not move these handlers up.
+ *
+ * Auto-advance runs for everyone, including under `prefers-reduced-motion`.
+ * Those visitors get an instant cut rather than the crossfade, which the
+ * reduced-motion backstop in `globals.css` already does by collapsing every
+ * `transition-duration` — so there is no branch for it here.
  */
 export function HeroSlideshow() {
   const [index, setIndex] = useState(0);
-  // Pauses the timer while someone is interacting, so a slide cannot change
-  // under the cursor as they reach for a chevron.
+  // Held while the pointer or focus is on a chevron, so the slide cannot change
+  // out from under someone reaching for it.
   const [isPaused, setIsPaused] = useState(false);
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const rootRef = useRef<HTMLDivElement>(null);
 
   const count = HERO_SLIDES.length;
   const go = useCallback(
@@ -43,43 +46,16 @@ export function HeroSlideshow() {
   );
 
   useEffect(() => {
-    if (prefersReducedMotion || isPaused) return;
+    if (isPaused) return;
     const timer = setInterval(() => go(1), INTERVAL_MS);
     return () => clearInterval(timer);
-  }, [go, isPaused, prefersReducedMotion]);
+  }, [go, isPaused]);
 
-  /*
-    Pause while the pointer is anywhere in the hero, or focus is inside it.
-
-    These listeners are on the *section*, not on the wrapper below. React
-    handlers on the wrapper looked correct and silently did almost nothing: the
-    hero content is a sibling of this layer and paints on top of it, so moving
-    the pointer across the logo or the copy never entered the wrapper and the
-    timer kept running. Measured — the slide advanced twice during a 7s hover.
-    The section is the element a visitor actually perceives as "the hero".
-  */
-  useEffect(() => {
-    const section = rootRef.current?.closest('section');
-    if (!section) return;
-
-    const pause = () => setIsPaused(true);
-    const resume = () => setIsPaused(false);
-
-    section.addEventListener('mouseenter', pause);
-    section.addEventListener('mouseleave', resume);
-    section.addEventListener('focusin', pause);
-    section.addEventListener('focusout', resume);
-
-    return () => {
-      section.removeEventListener('mouseenter', pause);
-      section.removeEventListener('mouseleave', resume);
-      section.removeEventListener('focusin', pause);
-      section.removeEventListener('focusout', resume);
-    };
-  }, []);
+  const pause = useCallback(() => setIsPaused(true), []);
+  const resume = useCallback(() => setIsPaused(false), []);
 
   return (
-    <div ref={rootRef} className="absolute inset-0">
+    <div className="absolute inset-0">
       {/*
         The photographs, at 60%. Decorative, and never intercepts a click meant
         for the content sitting above it.
@@ -112,8 +88,20 @@ export function HeroSlideshow() {
         ))}
       </div>
 
-      <SlideButton side="left" onClick={() => go(-1)} label="Previous image" />
-      <SlideButton side="right" onClick={() => go(1)} label="Next image" />
+      <SlideButton
+        side="left"
+        onClick={() => go(-1)}
+        label="Previous image"
+        onHold={pause}
+        onRelease={resume}
+      />
+      <SlideButton
+        side="right"
+        onClick={() => go(1)}
+        label="Next image"
+        onHold={pause}
+        onRelease={resume}
+      />
     </div>
   );
 }
@@ -125,21 +113,34 @@ export function HeroSlideshow() {
  * pointers. Hover alone would strand both keyboard and touch users, who have no
  * way to produce a hover at all. Tailwind 3.4 has no `pointer-coarse` variant,
  * hence the arbitrary media variant.
+ *
+ * `onHold`/`onRelease` freeze the timer while this control is under the pointer
+ * or holds focus — the narrowest scope that still stops a slide changing
+ * mid-click. Deliberately not on any larger element: on the hero, "larger"
+ * means the whole viewport.
  */
 function SlideButton({
   side,
   onClick,
   label,
+  onHold,
+  onRelease,
 }: {
   side: 'left' | 'right';
   onClick: () => void;
   label: string;
+  onHold: () => void;
+  onRelease: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={label}
+      onMouseEnter={onHold}
+      onMouseLeave={onRelease}
+      onFocus={onHold}
+      onBlur={onRelease}
       className={cn(
         'absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center',
         'rounded-full border border-ink/10 bg-ivory-50/70 text-ink backdrop-blur-sm',

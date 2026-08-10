@@ -25,7 +25,10 @@ export function ScrollIndicator({ href }: ScrollIndicatorProps) {
       // An explicit label rather than letting the visible "Scroll" plus a
       // hidden span concatenate into "Scroll Scroll down to the next section".
       aria-label="Scroll down to the next section"
-      className="group inline-flex flex-col items-center gap-3 rounded-full px-3 py-2 text-ink-muted transition-colors duration-300 hover:text-clay-600"
+      // White, because its only consumer is the hero, where it sits on the
+      // slideshow photographs. `.text-on-photo` carries the glyph shadow that
+      // keeps it readable on the light frames — see globals.css.
+      className="text-on-photo group inline-flex flex-col items-center gap-3 rounded-full px-3 py-2 text-white transition-colors duration-300 hover:text-clay-200"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: prefersReducedMotion ? 0 : 1.6, duration: 0.8 }}
@@ -34,7 +37,7 @@ export function ScrollIndicator({ href }: ScrollIndicatorProps) {
 
       <span
         aria-hidden="true"
-        className="relative flex h-11 w-6 items-start justify-center rounded-full border border-ink/25 pt-2 transition-colors duration-300 group-hover:border-clay-500/60"
+        className="relative flex h-11 w-6 items-start justify-center rounded-full border border-white/60 pt-2 transition-colors duration-300 group-hover:border-clay-200"
       >
         {/* The travelling dot. Under reduced motion it simply sits still —
             the shape still reads as a mouse, so the meaning survives. */}

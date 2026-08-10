@@ -45,9 +45,6 @@ export function Hero() {
       ref={sectionRef}
       id="hero"
       aria-labelledby="hero-heading"
-      // `bg-ivory-100` matches Services (Services.tsx). It also gives the hero
-      // a boundary against About below it, which is `ivory-50` — the two were
-      // previously the same shade and ran together with no seam.
       // `group` drives the slideshow chevrons, which stay hidden until the hero
       // is hovered. `bg-ivory-100` matches Services (Services.tsx) and is the
       // ground the wallpaper photographs wash over; it also gives the hero a
@@ -97,8 +94,20 @@ export function Hero() {
             initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="w-full max-w-[26rem]"
+            className="relative w-full max-w-[26rem]"
           >
+            {/* Light halo, so the mark reads on every frame rather than on
+                whatever the photograph happens to be. The tone is measured —
+                see `.logo-glow` in globals.css. Inset negatively so it spreads
+                past the artwork and has no visible edge. */}
+            <div
+              aria-hidden="true"
+              // Measured: this inset puts the ground under every ink family at
+              // rgb(246-250) on all three slides, i.e. effectively ivory and
+              // identical frame to frame. Enlarging it further changes nothing.
+              className="logo-glow pointer-events-none absolute -inset-8 sm:-inset-12"
+            />
+
             <Image
               src="/images/logo-monogram.png"
               alt=""
@@ -106,7 +115,11 @@ export function Hero() {
               height={1126}
               priority
               sizes="(max-width: 480px) 88vw, 416px"
-              className="h-auto w-full select-none"
+              // `relative` so it paints above the halo — same positioned-vs-
+              // static stacking point as the navbar band. The drop-shadow
+              // follows the PNG's alpha, so it traces the letterforms instead
+              // of boxing them.
+              className="relative h-auto w-full select-none [filter:drop-shadow(0_2px_6px_rgba(43,39,33,0.28))]"
             />
           </motion.div>
 
@@ -115,21 +128,21 @@ export function Hero() {
             parent's `gap-8` would otherwise put 2rem between them, which reads
             as two unrelated statements rather than a line and its location.
 
-            **Known, deliberate accessibility trade-off.** Both lines are
-            `text-ink-muted` (#6B6155) over photographs at 60% opacity, which
-            puts them below the 4.5:1 WCAG AA floor for body text on some
-            frames — the measured figures are in the README. This was chosen
-            over the alternatives (a contrast scrim, or darkening these two
-            lines to `text-ink`) so the venue photography reads clearly. It is a
-            decision, not an oversight; the route back is changing
-            `text-ink-muted` to `text-ink` on these two elements.
+            Both lines are white with `.text-on-photo`, because they sit
+            directly on the slideshow photographs.
+
+            The shadow is not decoration. All three slides are predominantly
+            light — white drapes, white linens, white walls — so plain white
+            text vanishes into them just as the previous grey vanished into the
+            dark patches. Measured figures are in the README. Remove the shadow
+            and the copy becomes unreadable on the bright half of every frame.
           */}
           <div className="flex flex-col items-center gap-3">
             <motion.p
               initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="max-w-xl text-base leading-relaxed text-ink-muted md:text-lg"
+              className="max-w-xl text-base leading-relaxed text-white text-on-photo md:text-lg"
             >
               {VENUE.intro}
             </motion.p>
@@ -148,7 +161,7 @@ export function Hero() {
               initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="max-w-xl text-sm not-italic leading-relaxed text-ink-muted"
+              className="max-w-xl text-sm not-italic leading-relaxed text-white text-on-photo"
             >
               {VENUE.address.street}, {VENUE.address.city}, {VENUE.address.region}
             </motion.address>
