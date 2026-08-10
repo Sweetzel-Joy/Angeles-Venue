@@ -40,8 +40,8 @@ export function Gallery() {
         <SectionHeading
           id="gallery-heading"
           eyebrow="The space"
-          title="Look around before you visit"
-          description="A cross-section of what the rooms look like set up. Select any image to view it full size."
+          title="Moments We've Hosted"
+          description="A look back at celebrations we've hosted — see how the venue comes to life for different occasions. Select any image to view it full size."
         />
 
         <div className="flex items-start gap-4">

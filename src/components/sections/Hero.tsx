@@ -124,48 +124,34 @@ export function Hero() {
           </motion.div>
 
           {/*
-            Intro and address are grouped so they read as one block. The
-            parent's `gap-8` would otherwise put 2rem between them, which reads
-            as two unrelated statements rather than a line and its location.
-
-            Both lines are white with `.text-on-photo`, because they sit
-            directly on the slideshow photographs.
+            White with `.text-on-photo-strong`, because it sits directly on the
+            slideshow photographs.
 
             The shadow is not decoration. All three slides are predominantly
             light — white drapes, white linens, white walls — so plain white
             text vanishes into them just as the previous grey vanished into the
-            dark patches. Measured figures are in the README. Remove the shadow
-            and the copy becomes unreadable on the bright half of every frame.
+            dark patches. This is the heavier of the two variants: it is the
+            largest body copy on the page and has no dark band behind it, unlike
+            the navbar. Measured figures are in the README.
+
+            The address line that used to sit under this was removed on request.
+            The venue's location is still carried by the `sr-only` <h1> above,
+            the About section, the footer and the JSON-LD — so nothing was lost
+            for search engines or screen readers.
           */}
-          <div className="flex flex-col items-center gap-3">
-            <motion.p
-              initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="max-w-xl text-base leading-relaxed text-white text-on-photo md:text-lg"
-            >
-              {VENUE.intro}
-            </motion.p>
-
-            {/*
-              Composed from the `VENUE.address` fields rather than written out,
-              so `content.ts` stays the one source of truth and the visible text
-              cannot drift from the JSON-LD that layout.tsx feeds to search
-              engines from those same fields.
-
-              Postcode and country are omitted deliberately — this is the
-              short, human form. `not-italic` because browsers italicise
-              <address> by default.
-            */}
-            <motion.address
-              initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="max-w-xl text-sm not-italic leading-relaxed text-white text-on-photo"
-            >
-              {VENUE.address.street}, {VENUE.address.city}, {VENUE.address.region}
-            </motion.address>
-          </div>
+          <motion.p
+            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            // `mt-4` stacks on the column's `gap-8`, so the space above this
+            // grows to 48px without altering the gap to the buttons below.
+            // `max-w-2xl` rather than `xl`: at this size the sentence no longer
+            // fits 36rem and would silently wrap to two lines, changing the
+            // hero's whole vertical rhythm.
+            className="text-on-photo-strong mt-4 max-w-2xl text-lg leading-relaxed text-white md:text-xl"
+          >
+            {VENUE.intro}
+          </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 16 }}

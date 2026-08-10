@@ -295,12 +295,27 @@ rather than being sized for a desktop window and swamping a phone screen.
   > — the wallpaper layer precedes the content in the DOM, so the generic
   > selector matches a full-viewport slide and silently reports nonsense.
 
-- **Hero copy, the navbar and the scroll hint are white**, with the
-  `.text-on-photo` glyph shadow. The navbar is white **only while transparent**
-  — `isSolid` switches it back to `text-ink`/`text-ink-muted`, because white
-  links on the scrolled bar's `bg-ivory-50/85` would be invisible. That
-  conditional is load-bearing; a single static colour breaks one state or the
-  other.
+- **Hero copy, the navbar and the scroll hint are white**, with a glyph shadow.
+  Two strengths, both in `globals.css`:
+
+  - `.text-on-photo` — navbar and scroll hint, which sit over the navbar's dark
+    band or are small enough not to need more.
+  - `.text-on-photo-strong` — the hero intro line only. It is the largest body
+    copy on the page and has no band behind it. Measured on one paused frame:
+    the darkest quarter of its bounding box goes 0.387 → 0.316 → **0.248**
+    (no shadow → `.text-on-photo` → `.text-on-photo-strong`), i.e. a 36% darker
+    surround than bare text and 22% darker than the lighter variant, while the
+    glyphs stay at full white.
+
+  The navbar is white **only while transparent** — `isSolid` switches it back to
+  `text-ink`/`text-ink-muted`, because white links on the scrolled bar's
+  `bg-ivory-50/85` would be invisible. That conditional is load-bearing; a
+  single static colour breaks one state or the other.
+
+  > Comparing shadow strengths **requires pausing the slideshow first**, by
+  > parking the pointer on a chevron — hovering the hero no longer pauses it.
+  > Sampling across a slide change compares two different photographs and
+  > produces nonsense (it reported the heavier shadow as *lighter*).
 
   > ### ⚠️ Known accessibility trade-off, chosen deliberately
   >

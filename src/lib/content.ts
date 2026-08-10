@@ -142,18 +142,24 @@ export const ABOUT = {
     { label: 'Guests', value: '100' },
     { label: 'Hours of use', value: '10' },
     { label: 'Events hosted', value: '20+' },
-    { label: 'Years operating', value: '5' },
+    { label: 'Years operating', value: '3' },
   ],
+  /*
+    Shown in the right-hand column between the location line and the map.
+
+    Real `alt`, not `alt=""` — this is content, not decoration. It is the space
+    a visitor is deciding whether to book, so the description has to carry what
+    the photograph actually shows.
+  */
   image: {
     // Real venue photography. Served from /public, so it needs no
     // `remotePatterns` entry in next.config.mjs — that is only for remote hosts.
-    src: '/images/about-pavilion.jpg',
-    alt: 'The covered pavilion set for a party: round tables dressed in white linen and chair covers, a green-and-gold balloon arch beside the stone bar, and the garden visible through the open side.',
-    // True dimensions of the file. It is a 2.28:1 panorama, and the About
-    // frame crops it to 4:3 in CSS — see the `aspect-[4/3]` figure in
-    // components/sections/About.tsx.
-    width: 3089,
-    height: 1356,
+    src: '/images/about-covered-pavilion.jpg',
+    alt: 'The covered event area: a wide open floor under a red-framed roof with a green shade canopy and string lights, a stone-clad bar counter carrying the Angeles Venue sign, stacked tables and chairs to one side, and greenery along the open edges.',
+    // True dimensions of the file. 1.773:1, so the `aspect-[16/9]` frame in
+    // About.tsx crops almost nothing.
+    width: 2048,
+    height: 1155,
   },
 } as const;
 
