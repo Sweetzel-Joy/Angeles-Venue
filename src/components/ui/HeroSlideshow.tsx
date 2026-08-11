@@ -5,8 +5,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { HERO_SLIDES } from '@/lib/content';
 import { cn } from '@/lib/utils';
 
-/** How long each slide holds before the next one crossfades in. */
-const INTERVAL_MS = 3000;
+/**
+ * How long each slide holds before the next one slides in.
+ *
+ * This is the hold, not the whole cycle: the 700ms travel in the transition
+ * below runs on top of it, so a full slide-to-slide beat is ~4.2s.
+ */
+const INTERVAL_MS = 3500;
 
 /**
  * Wallpaper slideshow behind the hero.
@@ -46,16 +51,26 @@ interface HeroSlideshowProps {
 }
 
 export function HeroSlideshow({ onSlideChange }: HeroSlideshowProps = {}) {
-  const [index, setIndex] = useState(0);
+  // `direction` rides along with the index so the slide knows which way to
+  // travel: +1 leaves to the left, -1 leaves to the right. Without it the
+  // chevrons would both animate forwards.
+  const [[index, direction], setState] = useState<[number, number]>([0, 1]);
   // Held while the pointer or focus is on a chevron, so the slide cannot change
   // out from under someone reaching for it.
   const [isPaused, setIsPaused] = useState(false);
 
   const count = HERO_SLIDES.length;
   const go = useCallback(
-    (step: number) => setIndex((current) => (current + step + count) % count),
+    (step: number) =>
+      setState(([current]) => [
+        (current + step + count) % count,
+        step > 0 ? 1 : -1,
+      ]),
     [count],
   );
+
+  /** The slide being replaced — the only other one that should animate. */
+  const leavingIndex = (index - direction + count) % count;
 
   useEffect(() => {
     if (isPaused) return;
@@ -86,25 +101,55 @@ export function HeroSlideshow({ onSlideChange }: HeroSlideshowProps = {}) {
         putting a scrim back would undo a decision, not fix a bug.
       */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-60">
-        {HERO_SLIDES.map((slide, i) => (
-          <Image
-            key={slide.src}
-            src={slide.src}
-            alt=""
-            fill
-            // Only the first is needed at first paint; the rest are not on
-            // screen until at least 3s in.
-            priority={i === 0}
-            sizes="100vw"
-            className={cn(
-              'select-none object-cover transition-opacity duration-1000 ease-out',
-              // Under reduced motion the global backstop in globals.css
-              // collapses this duration, so the swap is instant rather than a
-              // fade. No extra handling needed here.
-              i === index ? 'opacity-100' : 'opacity-0',
-            )}
-          />
-        ))}
+        {/*
+          Horizontal slide, not a crossfade.
+
+          Each photograph is parked off-screen and translated in. Three states,
+          and the third is the one that is easy to get wrong:
+
+            active   x: 0
+            leaving  x: -100% × direction
+            waiting  x: +100% × direction, WITH NO TRANSITION
+
+          The waiting slide has to jump to its parking spot instantly. Give it
+          a transition and it sweeps the full width of the viewport behind the
+          other two every time the index changes — visible as a third image
+          flying past.
+
+          The hero clips this (`overflow-hidden` on the section), so the parked
+          slides are off-screen rather than merely transparent.
+        */}
+        {HERO_SLIDES.map((slide, i) => {
+          const isActive = i === index;
+          const isLeaving = i === leavingIndex;
+          const offset = isActive
+            ? '0%'
+            : `${(isLeaving ? -100 : 100) * direction}%`;
+
+          return (
+            <div
+              key={slide.src}
+              className={cn(
+                'absolute inset-0 will-animate',
+                isActive || isLeaving
+                  ? 'motion-always transition-transform duration-700 ease-out'
+                  : 'transition-none',
+              )}
+              style={{ transform: `translateX(${offset})` }}
+            >
+              <Image
+                src={slide.src}
+                alt=""
+                fill
+                // Only the first is needed at first paint; the rest are not on
+                // screen until at least 3s in.
+                priority={i === 0}
+                sizes="100vw"
+                className="select-none object-cover"
+              />
+            </div>
+          );
+        })}
       </div>
 
       <SlideButton

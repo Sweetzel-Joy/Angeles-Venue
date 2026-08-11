@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import { Cormorant_Garamond, Great_Vibes, Inter } from 'next/font/google';
 import { SmoothScrollProvider } from '@/components/providers/SmoothScrollProvider';
 import { VENUE } from '@/lib/content';
 import './globals.css';
@@ -20,6 +20,23 @@ const display = Cormorant_Garamond({
 const sans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
+});
+
+/**
+ * Script face, used only for the hero wordmark.
+ *
+ * Great Vibes ships a single weight — there is no bold, and asking for one
+ * makes the browser synthesise a smeared fake. Size carries the emphasis
+ * instead, which is why the hero sets it very large rather than heavy.
+ *
+ * One weight, one subset: about 30 KB, self-hosted by `next/font` like the
+ * others, so no runtime request to Google.
+ */
+const script = Great_Vibes({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-script',
   display: 'swap',
 });
 
@@ -87,7 +104,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable}`}
+      className={`${display.variable} ${sans.variable} ${script.variable}`}
     >
       <body>
         {/* First focusable element on the page. Visually hidden until focused,

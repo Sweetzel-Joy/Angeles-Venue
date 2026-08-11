@@ -63,6 +63,7 @@ const config: Config = {
         // Wired to next/font CSS variables declared in app/layout.tsx
         display: ['var(--font-display)', 'Georgia', 'serif'],
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        script: ['var(--font-script)', 'Segoe Script', 'cursive'],
       },
       fontSize: {
         // Fluid display sizes — clamp() avoids a cascade of breakpoint overrides

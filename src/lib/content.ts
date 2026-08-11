@@ -145,13 +145,19 @@ export const ABOUT = {
   */
   location:
     '📍 Conveniently located at P1B-P4 B85 L2, Carissa Homes, Bagtas, Tanza, Cavite — just a few minutes away from Vista Mall Tanza',
-  // Capacity and hours lead: they are the two facts someone weighing a booking
-  // checks first. Both moved here when the Venue section was removed.
+  /*
+    Rendered left to right in this order by About.tsx, which maps straight over
+    the array — track record first, then what you actually get.
+
+    `value` is what the counter animates to; anything after the digits is kept
+    as a suffix rather than counted, which is why "20+" arrives at 20 and keeps
+    its plus. See `components/ui/Counter.tsx`.
+  */
   stats: [
-    { label: 'Guests', value: '100' },
-    { label: 'Hours of use', value: '10' },
-    { label: 'Events hosted', value: '20+' },
     { label: 'Years operating', value: '3' },
+    { label: 'Events hosted', value: '20+' },
+    { label: 'Guests capacity', value: '100' },
+    { label: 'Hours of use', value: '10' },
   ],
   /*
     Shown in the right-hand column between the location line and the map.
@@ -404,7 +410,7 @@ export const GALLERY: readonly GalleryItem[] = [
   },
   {
     id: 'g-savina-first-birthday',
-    caption: 'A first birthday, with the whole family',
+    caption: 'A princess theme first birthday ',
     column: 1,
     image: {
       src: '/images/gallery-savina-first-birthday.jpg',
@@ -419,7 +425,7 @@ export const GALLERY: readonly GalleryItem[] = [
   },
   {
     id: 'g-christening-pastel',
-    caption: 'A christening and 1st birthday under a pastel balloon ceiling',
+    caption: 'A pastel color theme christening and 1st birthday',
     column: 0,
     image: {
       src: '/images/gallery-christening-pastel.jpg',
