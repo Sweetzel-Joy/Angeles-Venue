@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput';
+import { Icon } from '@/components/ui/Icon';
 import { LeafDecor } from '@/components/ui/LeafDecor';
 import { Reveal } from '@/components/ui/Reveal';
 import { NAV_LINKS, VENUE } from '@/lib/content';
-import type { SocialIconName } from '@/types';
 
 /**
  * Site footer: navigation, newsletter, socials, and the map.
@@ -103,7 +103,7 @@ export function Footer() {
                   aria-label={`${VENUE.name} on ${social.label} (opens in a new tab)`}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink-muted transition-colors hover:border-clay-500/50 hover:text-clay-600"
                 >
-                  <SocialIcon name={social.icon} />
+                  <Icon name={social.icon} />
                 </a>
               </li>
             ))}
@@ -174,44 +174,5 @@ function NewsletterForm() {
   );
 }
 
-/** Inline brand marks — no icon dependency, inherits `currentColor`. */
-function SocialIcon({ name }: { name: SocialIconName }) {
-  const paths: Record<SocialIconName, React.ReactNode> = {
-    instagram: (
-      <>
-        <rect x="3" y="3" width="18" height="18" rx="5" />
-        <circle cx="12" cy="12" r="3.8" />
-        <circle cx="17.2" cy="6.8" r="0.9" fill="currentColor" stroke="none" />
-      </>
-    ),
-    facebook: (
-      <path d="M14.5 8.5h2.2V5.6h-2.6c-2.2 0-3.6 1.4-3.6 3.6v1.7H8.3v2.9h2.2V21h3V13.8h2.3l.4-2.9h-2.7V9.6c0-.7.3-1.1 1-1.1Z" />
-    ),
-    tiktok: (
-      <path d="M15 3.5c.4 2.1 1.8 3.5 3.9 3.7v2.7c-1.4.1-2.7-.3-3.9-1.1v5.6c0 3.2-2.4 5.6-5.4 5.6a5.3 5.3 0 0 1 0-10.6c.3 0 .6 0 .9.1v2.9a2.5 2.5 0 1 0 1.7 2.4V3.5Z" />
-    ),
-    youtube: (
-      <>
-        <rect x="2.5" y="5.5" width="19" height="13" rx="4" />
-        <path d="M10.5 9.5v5l4.2-2.5Z" fill="currentColor" stroke="none" />
-      </>
-    ),
-  };
-
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      focusable="false"
-    >
-      {paths[name]}
-    </svg>
-  );
-}
+/* The brand marks moved to `components/ui/Icon.tsx` — the enquiry block needs
+   the Facebook one too, and a second copy of the path was the alternative. */

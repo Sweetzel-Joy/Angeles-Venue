@@ -410,7 +410,7 @@ export const GALLERY: readonly GalleryItem[] = [
   },
   {
     id: 'g-christening-pastel',
-    caption: 'A christening under a pastel balloon ceiling',
+    caption: 'A christening and 1st birthday under a pastel balloon ceiling',
     column: 0,
     image: {
       src: '/images/gallery-christening-pastel.jpg',

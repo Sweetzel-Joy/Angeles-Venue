@@ -9,6 +9,7 @@ import {
   FloatingLabelSelect,
   FloatingLabelTextarea,
 } from '@/components/ui/FloatingLabelInput';
+import { Icon } from '@/components/ui/Icon';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { fadeInUp, slideInRight } from '@/lib/animations';
@@ -17,6 +18,9 @@ import { hasErrors, validateBooking } from '@/lib/validation';
 import type { BookingEnquiry, BookingFieldErrors, ContactApiResponse } from '@/types';
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
+
+/** Module scope: `VENUE` is a constant, so there is nothing to recompute. */
+const facebook = VENUE.socials.find((social) => social.icon === 'facebook');
 
 const EMPTY_FORM: BookingEnquiry = {
   name: '',
@@ -159,9 +163,22 @@ export function BookingCta() {
           />
 
           <Reveal variants={fadeInUp} delay={0.2}>
+            {/*
+              Each icon sits INSIDE its `<dt>`, not beside it. A `<dl>` may wrap
+              its pairs in `<div>`s, but those may contain only `<dt>` and
+              `<dd>` — an `<svg>` as a third child is invalid markup that no
+              browser complains about.
+
+              They are decorative (`aria-hidden` inside `Icon`): each one is
+              next to a visible label, so announcing it would give "graphic,
+              Call us" instead of "Call us".
+            */}
             <dl className="flex flex-col gap-5 border-t border-ink/10 pt-8 text-sm">
               <div className="flex flex-col gap-1">
-                <dt className="text-ink-faint">Call us</dt>
+                <dt className="flex items-center gap-2 text-ink-faint">
+                  <Icon name="phone" size={16} className="shrink-0" />
+                  Call us
+                </dt>
                 <dd>
                   <a
                     href={`tel:${VENUE.phone.replace(/[^+\d]/g, '')}`}
@@ -178,7 +195,10 @@ export function BookingCta() {
                 </dd>
               </div>
               <div className="flex flex-col gap-1">
-                <dt className="text-ink-faint">Email us</dt>
+                <dt className="flex items-center gap-2 text-ink-faint">
+                  <Icon name="mail" size={16} className="shrink-0" />
+                  Email us
+                </dt>
                 <dd>
                   <a
                     href={`mailto:${VENUE.email}`}
@@ -189,7 +209,10 @@ export function BookingCta() {
                 </dd>
               </div>
               <div className="flex flex-col gap-1">
-                <dt className="text-ink-faint">Visit us</dt>
+                <dt className="flex items-center gap-2 text-ink-faint">
+                  <Icon name="pin" size={16} className="shrink-0" />
+                  Visit us
+                </dt>
                 <dd className="not-italic text-ink">
                   <address className="not-italic">
                     {VENUE.address.street}
@@ -199,6 +222,31 @@ export function BookingCta() {
                   </address>
                 </dd>
               </div>
+
+              {/* Sourced from VENUE.socials rather than a second copy of the
+                  URL, and skipped entirely if that entry is ever removed —
+                  better no row than one pointing at nothing. */}
+              {facebook && (
+                <div className="flex flex-col gap-1">
+                  <dt className="flex items-center gap-2 text-ink-faint">
+                    <Icon name="facebook" size={16} className="shrink-0" />
+                    Facebook
+                  </dt>
+                  <dd>
+                    <a
+                      href={facebook.href}
+                      target="_blank"
+                      // noopener is the security-relevant half: without it the
+                      // opened page can reach back through window.opener.
+                      rel="noopener noreferrer"
+                      aria-label={`${VENUE.name} on Facebook (opens in a new tab)`}
+                      className="text-ink transition-colors hover:text-clay-600"
+                    >
+                      {VENUE.name}
+                    </a>
+                  </dd>
+                </div>
+              )}
             </dl>
           </Reveal>
         </div>
