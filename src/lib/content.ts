@@ -52,8 +52,17 @@ export const VENUE: VenueDetails = {
   // "<phone> — ask for <contactPerson>", and the number changed after this was
   // written.
   contactPerson: 'Eva',
-  // TODO: Replace with the real enquiries email address.
-  email: 'hello@example.com',
+  /*
+    The real enquiries address. Feeds the footer, the enquiry section's "Email
+    us" row, and the JSON-LD `EventVenue.email` in layout.tsx — one value, three
+    places, so it never drifts.
+
+    It is printed in plain text on a public page, so it will be harvested by
+    address-scraping bots. That is the trade for it being clickable; a contact
+    form alone avoids it, but the form does not send mail yet (see
+    `app/api/contact/route.ts`).
+  */
+  email: 'sweetzelleysico17@gmail.com',
   // TODO: Replace with the deployed site URL (used for Open Graph metadata).
   siteUrl: 'https://example.com',
   /*

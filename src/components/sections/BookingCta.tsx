@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useCallback, useRef, useState } from 'react';
-import { LazyFloatingShapes } from '@/components/3d/LazyHeroScene';
 import { Button } from '@/components/ui/Button';
 import {
   FloatingLabelInput,
@@ -144,22 +143,18 @@ export function BookingCta() {
     <section
       id="booking"
       aria-labelledby="booking-heading"
-      className="relative overflow-hidden bg-ivory-50 py-24 md:py-36"
+      // `relative` is kept for the inner container's stacking, but the section
+      // no longer needs `overflow-hidden`: that existed to clip the ambient 3D
+      // shapes that used to drift behind this form.
+      className="relative bg-ivory-50 py-24 md:py-36"
     >
-      {/* Ambient 3D backdrop. Client-only, desktop-only, and behind a gradient
-          wash so form contrast never depends on what happens to drift past. */}
-      <div aria-hidden="true" className="absolute inset-0">
-        <LazyFloatingShapes />
-        <div className="absolute inset-0 bg-gradient-to-b from-ivory-50 via-ivory-50/70 to-ivory-50" />
-      </div>
-
       <div className="container-page relative grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
         <div className="flex flex-col gap-8">
           <SectionHeading
             id="booking-heading"
-            eyebrow="Enquire"
+            eyebrow="Inquire"
             title="Tell us about your event"
-            description="Send us the shape of the day and we will come back with availability, pricing and a floor plan."
+            description="Share the details of your day and we'll follow up with availability, pricing, and a floor plan."
           />
 
           <Reveal variants={fadeInUp} delay={0.2}>
@@ -328,13 +323,13 @@ export function BookingCta() {
               error={errors.message}
             />
 
-            <div className="flex flex-wrap items-center gap-4">
+            {/* The button stands alone. The reassurance that used to sit
+                beside it now only appears after a successful send, in the
+                status region below. */}
+            <div>
               <Button type="submit" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? 'Sending…' : 'Send enquiry'}
+                {isSubmitting ? 'Sending…' : 'Send inquiry'}
               </Button>
-              <p className="text-xs text-ink-faint">
-                We reply to every enquiry within one business day.
-              </p>
             </div>
 
             {/*

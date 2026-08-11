@@ -130,6 +130,22 @@
   }
 
   /*
+    The inverse: ivory glow for DARK text on a bright photograph.
+
+    Both shadows above are ink-coloured because they exist to lift white text
+    off pale frames. Reusing one under dark text does the opposite of helping —
+    a dark halo around dark letters just thickens them into a smudge. The hero
+    switches to this on the second slide, which is bright enough that white
+    copy washes out.
+  */
+  .text-on-photo-light {
+    text-shadow:
+      0 1px 2px rgba(253, 251, 247, 0.95),
+      0 2px 6px rgba(253, 251, 247, 0.85),
+      0 4px 22px rgba(253, 251, 247, 0.7);
+  }
+
+  /*
     Halo behind the hero monogram.
 
     Light, and that is measured rather than chosen. The mark holds three ink
@@ -198,37 +214,32 @@
  * added later that forgets to check. Belt and braces, deliberately.
  */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  /*
+    `:not(.motion-always)` is the opt-out, and it works by *exclusion* rather
+    than by overriding.
+
+    An element marked `.motion-always` keeps whatever transition its own classes
+    declare. Reserved for pointer-driven feedback the visitor initiates
+    themselves — a tile responding to their own hover — never for anything that
+    moves on its own.
+
+    This used to be a separate `.motion-always { transition-duration: 300ms }`
+    override, which won the specificity fight but *pinned* every exempt element
+    to 300ms. That silently rewrote the gallery's 700ms zoom to 300ms for
+    reduced-motion visitors only. Excluding them from the blanket rule instead
+    means their declared duration simply survives.
+
+    Note the class must sit on the element that carries the transition, not an
+    ancestor: descendants inherit no `transition-property`, so exempting a
+    subtree would leave them at the CSS default of `all` and make every property
+    change inside it animate — the exact thing this media query exists to stop.
+  */
+  *:not(.motion-always),
+  *:not(.motion-always)::before,
+  *:not(.motion-always)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  /*
-    Deliberate exception to the blanket rule above.
-
-    An element marked `.motion-always` keeps its transitions under reduced
-    motion. Reserved for pointer-driven feedback the visitor initiates
-    themselves — a card responding to their own hover — never for anything that
-    moves on its own. Without it the rule above collapses the transition to
-    0.01ms and the change snaps rather than eases, which is the one thing a
-    before/after test cannot see.
-
-    `!important` plus a class selector is what it takes to win: both
-    declarations are important, so specificity decides, and `.motion-always`
-    (0,1,0) beats `*` (0,0,0).
-
-    Mark every element that needs it — deliberately NOT `.motion-always *`.
-    Descendants inherit no `transition-property`, so they keep the CSS default
-    of `all`; handing them a 300ms duration makes *every* property change
-    anywhere inside the subtree animate, which is the exact thing this media
-    query exists to stop. Measured: with the descendant selector in place, a
-    plain `visibility: hidden` on a list item inside a card took 300ms to apply.
-  */
-  .motion-always {
-    transition-duration: 300ms !important;
   }
 }

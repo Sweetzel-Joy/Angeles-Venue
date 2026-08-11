@@ -33,7 +33,19 @@ const INTERVAL_MS = 3000;
  * reduced-motion backstop in `globals.css` already does by collapsing every
  * `transition-duration` — so there is no branch for it here.
  */
-export function HeroSlideshow() {
+interface HeroSlideshowProps {
+  /**
+   * Fired with the active slide index whenever it changes, including once on
+   * mount. The hero uses it to recolour its copy per slide — the photographs
+   * differ enough in brightness that one text colour cannot serve all three.
+   *
+   * Pass something stable (a `useState` setter, or a memoised callback): it is
+   * an effect dependency, and a fresh function each render would re-fire it.
+   */
+  onSlideChange?: (index: number) => void;
+}
+
+export function HeroSlideshow({ onSlideChange }: HeroSlideshowProps = {}) {
   const [index, setIndex] = useState(0);
   // Held while the pointer or focus is on a chevron, so the slide cannot change
   // out from under someone reaching for it.
@@ -50,6 +62,13 @@ export function HeroSlideshow() {
     const timer = setInterval(() => go(1), INTERVAL_MS);
     return () => clearInterval(timer);
   }, [go, isPaused]);
+
+  // Reported from an effect, not from inside `setIndex` — calling a parent's
+  // setter during another component's state update is a render-phase side
+  // effect and React warns about it.
+  useEffect(() => {
+    onSlideChange?.(index);
+  }, [index, onSlideChange]);
 
   const pause = useCallback(() => setIsPaused(true), []);
   const resume = useCallback(() => setIsPaused(false), []);

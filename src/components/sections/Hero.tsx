@@ -2,12 +2,23 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { LinkButton } from '@/components/ui/Button';
 import { HeroSlideshow } from '@/components/ui/HeroSlideshow';
 import { ScrollIndicator } from '@/components/ui/ScrollIndicator';
 import { VENUE } from '@/lib/content';
 import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
+import { cn } from '@/lib/utils';
+
+/**
+ * The slide whose photograph is bright enough that white copy washes out, so
+ * the tagline and the outline button flip to ink on it.
+ *
+ * An index rather than a flag on the slide data: `HERO_SLIDES` describes the
+ * images, and which of them needs dark copy is a fact about this layout, not
+ * about the file. Reorder the slides and this must move with them.
+ */
+const DARK_COPY_SLIDE = 1;
 
 /**
  * Full-viewport hero.
@@ -25,6 +36,10 @@ import { usePrefersReducedMotion } from '@/lib/hooks/usePrefersReducedMotion';
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
+  // `setSlideIndex` is passed straight to the slideshow: setState identities are
+  // stable, so it will not re-fire the effect that reports the index.
+  const [slideIndex, setSlideIndex] = useState(0);
+  const darkCopy = slideIndex === DARK_COPY_SLIDE;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -49,9 +64,22 @@ export function Hero() {
       // is hovered. `bg-ivory-100` matches Services (Services.tsx) and is the
       // ground the wallpaper photographs wash over; it also gives the hero a
       // boundary against About below it, which is `ivory-50`.
-      className="group relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ivory-100"
+      // Bottom padding reserves room for the scroll hint. The content is
+      // centred with `items-center`, so this shrinks the box it centres in and
+      // lifts the block — without any, the buttons and the hint collide on
+      // shorter windows (measured: -38px at 1440x700, -4px at 1024x768).
+      //
+      // `pb-16` rather than `pb-24`: the larger value lifted the logo close to
+      // the navbar. Half the difference comes back as 16px of downward shift.
+      //
+      // Applied ONLY above 780px, matching the hint's own threshold. Below it
+      // the hint is hidden, so the padding reserves space for something that is
+      // not there — and measured, that lift pushed the logo *under* the fixed
+      // navbar (-22px at 1440x700, -14px at 390x750). Where the hint is gone
+      // the content should use the whole viewport.
+      className="group relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ivory-100 [@media(min-height:781px)]:pb-16"
     >
-      <HeroSlideshow />
+      <HeroSlideshow onSlideChange={setSlideIndex} />
 
       {/* `relative z-10` lifts the content clear of the wallpaper layer. Safe
           to add now — the `mix-blend-mode` that once forbade stacking contexts
@@ -148,7 +176,15 @@ export function Hero() {
             // `max-w-2xl` rather than `xl`: at this size the sentence no longer
             // fits 36rem and would silently wrap to two lines, changing the
             // hero's whole vertical rhythm.
-            className="text-on-photo-strong mt-4 max-w-2xl text-lg leading-relaxed text-white md:text-xl"
+            className={cn(
+              'mt-4 max-w-2xl text-lg leading-relaxed transition-colors duration-500 md:text-xl',
+              // Colour AND shadow flip together. Keeping the ink-coloured
+              // shadow under dark text would ring the letters in more dark and
+              // read as a smudge, not a lift.
+              darkCopy
+                ? 'text-on-photo-light text-ink'
+                : 'text-on-photo-strong text-white',
+            )}
           >
             {VENUE.intro}
           </motion.p>
@@ -162,7 +198,14 @@ export function Hero() {
             <LinkButton href="#booking" size="lg">
               Book Your Event
             </LinkButton>
-            <LinkButton href="#gallery" variant="secondary" size="lg">
+            {/* Never `secondary` — that is the ivory-section treatment and is
+                barely legible on a photograph. Which of the two on-photo
+                variants applies depends on the slide underneath. */}
+            <LinkButton
+              href="#gallery"
+              variant={darkCopy ? 'onPhotoDark' : 'onPhoto'}
+              size="lg"
+            >
               See the space
             </LinkButton>
           </motion.div>
@@ -172,7 +215,20 @@ export function Hero() {
       {/* Layer 3 — the scroll hint, fades out first. */}
       <motion.div
         style={{ opacity: hintOpacity }}
-        className="absolute inset-x-0 bottom-8 z-10 flex justify-center"
+        /*
+          Hidden at 780px of viewport height and below. Padding alone cannot
+          save this on a short window — at 390x667 the logo, tagline and two
+          buttons need the whole screen, and lifting them far enough to clear
+          the hint would wreck the composition on every normal viewport.
+          Dropping a decorative hint is the cheaper loss; the section still
+          scrolls.
+
+          The threshold rose from 740 to 780 when the section's padding was
+          reduced to sit the content lower: less lift means less clearance, so
+          the height at which the hint stops fitting goes up with it. The two
+          numbers move together — there is a sweep in `scratchpad/verify`.
+        */
+        className="absolute inset-x-0 bottom-8 z-10 flex justify-center [@media(max-height:780px)]:hidden"
       >
         <ScrollIndicator href="#about" />
       </motion.div>

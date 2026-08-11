@@ -45,7 +45,7 @@ export function Gallery() {
     <section
       id="gallery"
       aria-labelledby="gallery-heading"
-      className="relative bg-ivory-50 py-24 md:py-36"
+      className="relative bg-fern-200 py-24 md:py-36"
     >
       <div className="container-page flex flex-col gap-14">
         <SectionHeading
@@ -53,6 +53,8 @@ export function Gallery() {
           eyebrow="The space"
           title="Moments We've Hosted"
           description="A look back at celebrations we've hosted — see how the venue comes to life for different occasions. Select any image to view it full size."
+          // This section sits on `fern-200`, not ivory — see the prop's note.
+          tone="tinted"
         />
 
         {/*
@@ -146,7 +148,10 @@ function GalleryTile({
         // The button carries the full description; the image inside is then
         // redundant to assistive tech, so it gets an empty alt.
         aria-label={`View image ${index + 1} of ${total}: ${item.image.alt}`}
-        className="group relative block w-full overflow-hidden rounded-2xl bg-ivory-200"
+        // `bg-sage-300` is the placeholder shown while the lazy image loads.
+        // It was `ivory-200`, which flashed as a pale rectangle now the section
+        // is green; a muted green reads as a waiting tile instead.
+        className="group relative block w-full overflow-hidden rounded-2xl bg-sage-300"
       >
         {/*
           Two spans, not one. The outer span is what gets observed and must stay
@@ -176,7 +181,19 @@ function GalleryTile({
               width={item.image.width}
               height={item.image.height}
               sizes={sizes}
-              className="h-auto w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              /*
+                Hover zoom. `scale-[1.08]`, up from 1.04 — at 4% the movement
+                was barely perceptible on a 584px tile.
+
+                `motion-always` and no `motion-reduce:` cancels: this used to
+                carry `motion-reduce:group-hover:scale-100`, so under reduced
+                motion the hovered transform measured `matrix(1,0,0,1,0,0)` —
+                the zoom did not happen at all. It animates for everyone now.
+                A tile scaling inside its own clipped frame, only while the
+                pointer is on it, is not the kind of motion the preference
+                exists to suppress.
+              */
+              className="motion-always h-auto w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]"
             />
           </motion.span>
         </motion.span>

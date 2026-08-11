@@ -3,7 +3,7 @@
 import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'onPhoto' | 'onPhotoDark';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface BaseProps {
@@ -29,6 +29,23 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary:
     'bg-transparent text-ink border border-ink/20 hover:border-ink/45 hover:bg-ink/[0.03]',
   ghost: 'bg-transparent text-clay-600 hover:text-clay-700 hover:bg-clay-500/8',
+  /*
+    Outlined in white, for a button sitting on photography.
+
+    A separate variant rather than `secondary` with overrides: `cn` is a plain
+    join with no tailwind-merge (see lib/utils.ts), so passing `text-white`
+    alongside `secondary`'s `text-ink` leaves both in the class list and lets
+    stylesheet order pick the winner. And `secondary` must stay dark — it is
+    the correct treatment on the ivory sections.
+
+    `text-on-photo` adds the glyph shadow the hero uses elsewhere; white on a
+    pale patch of photograph is otherwise unreadable.
+  */
+  onPhoto:
+    'text-on-photo bg-transparent text-white border border-white/70 hover:border-white hover:bg-white/15',
+  /** The same, inverted, for the brighter frames where white washes out. */
+  onPhotoDark:
+    'text-on-photo-light bg-transparent text-ink border border-ink/55 hover:border-ink hover:bg-ink/10',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

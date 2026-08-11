@@ -117,7 +117,7 @@ Everything the page renders comes from one file:
       named people is dishonest and, in many jurisdictions, unlawful.
 
 **Numbers**
-- [x] `ABOUT.stats` — Guests 100, Hours of use 10, Events hosted 20+, Years
+- [x] `ABOUT.stats` — Guests capacity 100, Hours of use 10, Events hosted 20+, Years
       operating 5.
 
       > The **Venue section was removed entirely**, along with `AMENITIES`, the

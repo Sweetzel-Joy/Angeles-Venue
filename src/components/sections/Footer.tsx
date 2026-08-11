@@ -42,9 +42,6 @@ const CONTACT_ROWS: readonly ContactRow[] = [
     href: `tel:${VENUE.phone.replace(/[^+\d]/g, '')}`,
   },
   {
-    // TODO: `VENUE.email` is still the `hello@example.com` placeholder, and it
-    // is now printed in full in the footer where visitors will read and click
-    // it. Kept visible by decision — see the TODO in content.ts.
     icon: 'mail',
     lines: [VENUE.email],
     href: `mailto:${VENUE.email}`,

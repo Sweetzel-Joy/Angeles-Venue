@@ -13,6 +13,15 @@ interface SectionHeadingProps {
   /** Optional supporting sentence below the heading. */
   description?: string;
   align?: 'left' | 'center';
+  /**
+   * Colour treatment for the surface underneath.
+   *
+   * `default` targets the ivory sections. `tinted` is for the mid-tone
+   * backgrounds — on `fern-200` the default `.eyebrow` (clay-600) measures
+   * 3.8:1 and the description (ink-muted) 4.2:1, both under the 4.5:1 AA floor.
+   * This darkens both rather than leaving a section that looks fine and is not.
+   */
+  tone?: 'default' | 'tinted';
   /** Links the heading to its section via aria-labelledby. */
   id?: string;
   className?: string;
@@ -30,10 +39,12 @@ export function SectionHeading({
   title,
   description,
   align = 'left',
+  tone = 'default',
   id,
   className,
 }: SectionHeadingProps) {
   const centered = align === 'center';
+  const tinted = tone === 'tinted';
 
   return (
     <div
@@ -44,7 +55,9 @@ export function SectionHeading({
       )}
     >
       <Reveal variants={centered ? fadeInUp : slideInLeft}>
-        <p className="eyebrow">{eyebrow}</p>
+        {/* `.eyebrow` sets clay-600; the utility wins because utilities are
+            layered after components. */}
+        <p className={cn('eyebrow', tinted && 'text-clay-700')}>{eyebrow}</p>
       </Reveal>
 
       <Reveal as="h2" variants={fadeInUp} delay={0.08}>
@@ -60,7 +73,8 @@ export function SectionHeading({
         <Reveal variants={fadeInUp} delay={0.16}>
           <p
             className={cn(
-              'max-w-xl text-base leading-relaxed text-ink-muted',
+              'max-w-xl text-base leading-relaxed',
+              tinted ? 'text-ink' : 'text-ink-muted',
               centered && 'mx-auto',
             )}
           >
