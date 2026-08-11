@@ -37,6 +37,21 @@ const config: Config = {
           600: '#6B8060',
           800: '#43503C',
         },
+        /*
+          The footer's ground. A brighter, more yellow green than the sage
+          scale, which is deliberately greyed — `sage-200` (#CBD5C0) sits next
+          to this and reads dusty by comparison.
+
+          NOTE: matched by eye from a supplied swatch, not sampled from a file.
+          If you have the exact value, this is the one place to correct it.
+
+          It is much darker than the ivory it replaced, so footer text had to be
+          darkened with it: `ink-muted` measures 4.2:1 here and `ink-faint`
+          2.2:1, both under AA. See Footer.tsx.
+        */
+        fern: {
+          200: '#CDDCA6',
+        },
         // Warm near-black. Never pure #000 — it reads cold against ivory.
         ink: {
           DEFAULT: '#2B2721',

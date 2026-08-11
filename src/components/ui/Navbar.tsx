@@ -145,14 +145,18 @@ export function Navbar() {
             twice for one link. The text carries the name; the image is
             decorative.
 
-            This file is a JPEG with an **opaque #FFFFFF ground** (sampled:
-            alpha 255 throughout), so its square edge is faintly visible against
-            the ivory bar. `rounded-lg` makes that edge read as a deliberate
-            mark rather than an untrimmed rectangle.
+            This file is a **fully opaque JPEG** (alpha 255 throughout), so its
+            square edge is visible against the ivory bar. `rounded-lg` makes
+            that edge read as a deliberate mark rather than an untrimmed
+            rectangle.
 
-            `mix-blend-multiply` would remove the white outright but cannot be
-            used here: the bar gains `backdrop-blur-lg` once scrolled, and that
-            creates a stacking context, which isolates the blend. (The hero's
+            The ground is not uniformly white, despite what this note used to
+            say: sampled at 2048px it is #FFFFFF down the left and right edges
+            but green foliage across the top (rgb 83,146,32) and bottom
+            (rgb 193,219,57). So `mix-blend-multiply` would not cleanly drop the
+            background even where it is usable — and it is not usable here
+            anyway, because the bar gains `backdrop-blur-lg` once scrolled,
+            which creates a stacking context and isolates the blend. (The hero's
             monogram needs none of this — it has a real alpha channel.)
           */}
           <a
@@ -195,7 +199,12 @@ export function Navbar() {
                 <a
                   href={link.href}
                   className={cn(
-                    'group relative py-1 text-sm transition-colors duration-200',
+                    // `uppercase` via CSS, not uppercased strings in
+                    // NAV_LINKS — the content file stays presentation-free and
+                    // the footer reuses the same labels. `tracking-wide`
+                    // because all-caps sets tight without a little letter
+                    // spacing; the `.eyebrow` class does the same thing.
+                    'group relative py-1 text-sm uppercase tracking-wide transition-colors duration-200',
                     isSolid
                       ? 'text-ink-muted hover:text-ink'
                       : 'text-on-photo text-white hover:text-clay-200',
@@ -281,7 +290,7 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={closeDrawer}
-                  className="border-b border-ink/8 py-4 font-display text-2xl text-ink transition-colors hover:text-clay-600"
+                  className="border-b border-ink/8 py-4 font-display text-2xl uppercase tracking-wide text-ink transition-colors hover:text-clay-600"
                 >
                   {link.label}
                 </a>
